@@ -1,0 +1,228 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global CSS Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * Palette tokens.
+ *
+ * Every colour in the app resolves here, and nothing downstream writes a hex.
+ * The categorical slots are the first three of the validated eight-hue order
+ * (blue, orange, aqua) - checked with the palette validator against both
+ * surfaces: worst adjacent CVD dE 9.2 light / 9.4 dark, worst adjacent
+ * normal-vision dE 27.6 light / 26.5 dark. Light-mode aqua sits at 2.74:1
+ * against the light surface, under 3:1, so every chart that uses slot 3 ships
+ * direct labels and a table view (the relief rule) rather than relying on the
+ * fill alone.
+ *
+ * Dark values are declared twice on purpose: the media query follows the OS,
+ * the [data-theme] scope follows the in-app toggle, and the toggle has to win
+ * in both directions.
+ */
+
+:root {
+  color-scheme: light;
+
+  --plane: #f9f9f7;
+  --surface-1: #fcfcfb;
+  --surface-2: #f0efec;
+
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+
+  /* Categorical - fixed order, assigned by entity, never cycled. */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+
+  /* Sequential blue, seq-1 = near zero. The low end is allowed to recede
+     toward the surface; the high end carries the weight. */
+  --seq-1: #cde2fb;
+  --seq-2: #86b6ef;
+  --seq-3: #3987e5;
+  --seq-4: #1c5cab;
+  --seq-5: #0d366b;
+  --seq-ink-low: #0b0b0b;
+  --seq-ink-high: #ffffff;
+
+  /* Status is reserved: never a series colour, always with an icon and a word. */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --delta-up: #006300;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+
+    --plane: #0d0d0d;
+    --surface-1: #1a1a19;
+    --surface-2: #232322;
+
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+
+    /* Same hue ramp, direction flipped so "near zero" still recedes into the
+       surface instead of glowing brightest. */
+    --seq-1: #0d366b;
+    --seq-2: #1c5cab;
+    --seq-3: #3987e5;
+    --seq-4: #86b6ef;
+    --seq-5: #cde2fb;
+    --seq-ink-low: #ffffff;
+    --seq-ink-high: #0b0b0b;
+
+    --delta-up: #0ca30c;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --plane: #0d0d0d;
+  --surface-1: #1a1a19;
+  --surface-2: #232322;
+
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+
+  --gridline: #2c2c2a;
+  --baseline: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+
+  --seq-1: #0d366b;
+  --seq-2: #1c5cab;
+  --seq-3: #3987e5;
+  --seq-4: #86b6ef;
+  --seq-5: #cde2fb;
+  --seq-ink-low: #ffffff;
+  --seq-ink-high: #0b0b0b;
+
+  --delta-up: #0ca30c;
+}
+
+@layer base {
+  html {
+    font-family: Geist, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--plane);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Keyboard focus stays visible everywhere; mouse focus does not draw a ring. */
+  :focus-visible {
+    outline: 2px solid var(--series-1);
+    outline-offset: 2px;
+  }
+
+  /* Axis ticks and table columns align; standalone figures keep proportional
+     figures per the typography rule. */
+  th,
+  td,
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-hairline bg-surface p-5 shadow-card;
+  }
+
+  .label {
+    @apply text-xs font-medium uppercase tracking-wide text-ink-muted;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm
+           font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn text-white;
+    background: var(--series-1);
+  }
+
+  .btn-quiet {
+    @apply btn border border-hairline bg-surface text-ink hover:bg-surface-2;
+  }
+
+  .field {
+    @apply w-full rounded-md border border-hairline bg-surface px-3 py-2 text-sm
+           text-ink placeholder:text-ink-muted;
+  }
+}
+
+/* Foldcraft Hero Animations */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Texture channel for CVD, print, and forced-colors: one directional fill at
+   45deg and its mirror, tone-on-tone. Never decorative, never on by default. */
+@media print, (forced-colors: active) {
+  .texture-a {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1px,
+      transparent 1px 5px
+    );
+  }
+
+  .texture-b {
+    background-image: repeating-linear-gradient(
+      135deg,
+      currentColor 0 1px,
+      transparent 1px 5px
+    );
+  }
+}

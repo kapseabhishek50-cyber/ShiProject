@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(node scripts/validate_palette.js \"#2a78d6,#eb6834,#1baf7a\" --mode light)",
+      "Bash(node scripts/validate_palette.js \"#3987e5,#d95926,#199e70\" --mode dark --surface \"#1a1a19\")",
+      "Bash(npm install *)",
+      "Bash(npm rebuild *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(node --test server/src/services/)",
+      "Bash(node --test src/services/gapEngine.test.js src/services/mcqValidator.test.js)",
+      "Bash(node --test src/services/gapEngine.test.js)",
+      "Bash(node --test src/)",
+      "Bash(node --test --test-reporter=tap src/)",
+      "Bash(node --test \"src/**/*.test.js\")",
+      "Bash(node src/index.js)",
+      "Bash(node -e \"const p=require\\('./node_modules/@anthropic-ai/sdk/package.json'\\); console.log\\('version', p.version\\); console.log\\('exports keys:', Object.keys\\(p.exports||{}\\).join\\(' '\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"console.log\\('zod version', require\\('./node_modules/zod/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./server/node_modules/zod/package.json'\\).version\\)\")",
+      "Bash(npm view *)",
+      "Bash(node -e \"console.log\\('root zod:', require\\('./node_modules/zod/package.json'\\).version\\)\")",
+      "Bash(node src/seed/seed.js)",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const g=JSON.parse\\(s\\);const rows=g.gaps??g;console.log\\(rows.slice\\(0,3\\).map\\(r=>[r.competency?.code,r.currentLevel,r.requiredLevel,r.priority,r.band,r.officers].join\\(' | '\\)\\).join\\('\\\\n'\\)\\);}\\)\")",
+      "Bash(node -e \"let s='';process.stdin.on\\('data',d=>s+=d\\).on\\('end',\\(\\)=>{const g=JSON.parse\\(s\\);console.log\\('keys:',Object.keys\\(g\\)\\);const rows=g.gaps??g.ranking??g.rows;console.log\\(\\(rows||[]\\).slice\\(0,5\\).map\\(r=>[r.competency?.code,r.currentLevel,'->',r.requiredLevel,r.priority,r.band,r.officers+' off'].join\\(' '\\)\\).join\\('\\\\n'\\)\\);}\\)\")"
+    ]
+  }
+}
