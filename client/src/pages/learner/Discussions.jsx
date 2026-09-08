@@ -13,8 +13,9 @@ import {
   Map,
   Shield,
   CornerDownRight,
+  X,
 } from 'lucide-react';
-import { Card, Loading, ErrorNote, Empty } from '../../components/ui.jsx';
+import { Card, Badge, Button, Loading, ErrorNote, Empty } from '../../components/ui.jsx';
 import { useApi, useMutation } from '../../hooks/useApi.js';
 import { api, endpoints, formatDate } from '../../lib/index.js';
 
@@ -42,14 +43,12 @@ export default function Discussions() {
 
   const messagesEndRef = useRef(null);
 
-  // Default to first group
   useEffect(() => {
     if (groups.length > 0 && !activeGroup) {
       setActiveGroup(groups[0]);
     }
   }, [groups, activeGroup]);
 
-  // Load messages for selected group
   useEffect(() => {
     if (!activeGroup?._id) return;
     let cancelled = false;
@@ -75,25 +74,22 @@ export default function Discussions() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newText.trim() || !activeGroup) return;
-
-    const payload = {
-      content: newText.trim(),
-      replyTo: replyTo?._id,
-    };
-    setNewText('');
-    setReplyTo(null);
-
+  const postMessage = async (content, replyToId) => {
+    if (!content.trim() || !activeGroup) return;
+    const payload = { content: content.trim(), replyTo: replyToId };
     try {
       const res = await api.post(`/discussions/groups/${activeGroup._id}/messages`, payload);
-      if (res.message) {
-        setMessages((prev) => [...prev, res.message]);
-      }
+      if (res.message) setMessages((prev) => [...prev, res.message]);
     } catch (err) {
       console.error('Failed to post message', err);
     }
+  };
+
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    postMessage(newText, null);
+    setNewText('');
+    setReplyTo(null);
   };
 
   const handleAskAi = async () => {
@@ -116,21 +112,31 @@ export default function Discussions() {
   if (groupsApi.loading) return <Loading label="Loading statistical discussion groups" />;
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold text-ink">Statistical Learning Discussions</h1>
-        <p className="mt-1 text-sm text-ink-2">
-          Collaborative peer capacity building across official statistical domains. Meaningful discussion contributions award +20 XP towards your streak.
-        </p>
+    <div className="space-y-6">
+      {/* ── Header ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+            Statistical Learning Discussions
+          </h1>
+          <p className="mt-1 text-sm text-ink-2">
+            Collaborative peer capacity building across official statistical domains. Meaningful contributions award <span className="font-semibold text-primary">+20 XP</span> towards your streak.
+          </p>
+        </div>
+        <Button variant="accent" size="sm" onClick={() => setShowAiModal(true)}>
+          <Sparkles size={14} />
+          Ask AI Co-pilot
+        </Button>
       </div>
 
       <ErrorNote error={groupsApi.error} />
 
       <div className="grid gap-5 lg:grid-cols-12">
-        {/* Groups Sidebar */}
+        {/* ── Groups Sidebar ──────────────────────────── */}
         <div className="space-y-2 lg:col-span-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted px-1">Learning Groups</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted px-1">
+            Learning Groups
+          </h3>
           <div className="space-y-1.5">
             {groups.map((group) => {
               const Icon = GROUP_ICONS[group.icon] || MessageSquare;
@@ -142,15 +148,14 @@ export default function Discussions() {
                   onClick={() => setActiveGroup(group)}
                   className={`w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 ${
                     isActive
-                      ? 'border-accent bg-accent/5 shadow-sm'
-                      : 'border-hairline bg-surface hover:bg-surface-2'
+                      ? 'border-primary/40 bg-primary-light shadow-sm'
+                      : 'border-hairline bg-surface hover:bg-surface-2 hover:border-primary/20'
                   }`}
                 >
                   <div
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                      isActive ? 'bg-accent text-white' : 'bg-surface-2 text-ink-2'
+                      isActive ? 'bg-gradient-accent text-white' : 'bg-surface-2 text-ink-2'
                     }`}
-                    style={isActive ? { background: 'var(--accent, #1d4ed8)' } : {}}
                   >
                     <Icon size={18} />
                   </div>
@@ -169,39 +174,27 @@ export default function Discussions() {
           </div>
         </div>
 
-        {/* Conversation Thread */}
-        <div className="flex flex-col h-[650px] rounded-2xl border border-hairline bg-surface shadow-sm lg:col-span-8 overflow-hidden">
+        {/* ── Conversation Thread ─────────────────────── */}
+        <div className="flex flex-col rounded-2xl border border-hairline bg-surface shadow-card lg:col-span-8 overflow-hidden">
           {/* Group Header */}
           {activeGroup && (
-            <div className="flex items-center justify-between border-b border-hairline bg-surface px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-hairline bg-surface-2/50 px-5 py-3.5 backdrop-blur-sm">
               <div>
-                <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
+                <h3 className="text-sm font-bold text-ink flex items-center gap-2">
                   <span>{activeGroup.title}</span>
-                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px] font-normal uppercase text-ink-muted">
-                    {activeGroup.category}
-                  </span>
+                  <Badge band="accent">{activeGroup.category}</Badge>
                 </h3>
                 <p className="text-xs text-ink-2 mt-0.5 line-clamp-1">{activeGroup.topic}</p>
               </div>
-
-              {/* Ask AI Trigger */}
-              <button
-                type="button"
-                onClick={() => setShowAiModal(true)}
-                className="flex items-center gap-1.5 rounded-full border border-hairline bg-accent/10 px-3 py-1 text-xs font-medium text-accent hover:bg-accent hover:text-white transition-all"
-              >
-                <Sparkles size={14} />
-                <span>Ask AI Co-pilot</span>
-              </button>
             </div>
           )}
 
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[520px]">
             {loadingMessages ? (
               <Loading label="Loading discussion messages" />
             ) : messages.length === 0 ? (
-              <Empty>No messages in this group yet. Start the discussion!</Empty>
+              <Empty>No messages yet. Start the discussion!</Empty>
             ) : (
               messages.map((m) => (
                 <div
@@ -210,8 +203,8 @@ export default function Discussions() {
                     m.isPinned
                       ? 'border-amber-500/30 bg-amber-500/5'
                       : m.isAiGenerated
-                      ? 'border-accent/30 bg-accent/5'
-                      : 'border-hairline bg-surface'
+                      ? 'border-accent/20 bg-accent/5 card-ai'
+                      : 'border-hairline bg-surface-2/50'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -219,18 +212,17 @@ export default function Discussions() {
                       <div
                         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                           m.isAiGenerated
-                            ? 'bg-accent text-white'
+                            ? 'bg-gradient-accent text-white'
                             : m.authorRole === 'trainer'
                             ? 'bg-amber-500 text-white'
                             : 'bg-surface-2 text-ink'
                         }`}
-                        style={m.isAiGenerated ? { background: 'var(--accent, #1d4ed8)' } : {}}
                       >
                         {m.isAiGenerated ? <Bot size={14} /> : m.authorName[0]}
                       </div>
                       <span className="text-xs font-semibold text-ink">{m.authorName}</span>
                       {m.isAiGenerated ? (
-                        <span className="rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                        <span className="rounded-md bg-gradient-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
                           AI Co-pilot
                         </span>
                       ) : m.authorRole === 'trainer' ? (
@@ -250,7 +242,9 @@ export default function Discussions() {
                     </div>
                   </div>
 
-                  <p className="mt-2.5 text-xs text-ink leading-relaxed whitespace-pre-wrap">{m.content}</p>
+                  <p className="mt-2.5 text-xs text-ink leading-relaxed whitespace-pre-wrap">
+                    {m.content}
+                  </p>
 
                   <div className="mt-3 flex items-center justify-between border-t border-hairline/50 pt-2 text-[11px] text-ink-muted">
                     <button
@@ -270,17 +264,21 @@ export default function Discussions() {
 
           {/* Reply Context Banner */}
           {replyTo && (
-            <div className="flex items-center justify-between border-t border-hairline bg-surface-2 px-4 py-2 text-xs">
+            <div className="flex items-center justify-between border-t border-hairline bg-primary-light px-4 py-2 text-xs">
               <span className="truncate text-ink-2">
                 Replying to <strong className="text-ink">{replyTo.authorName}</strong>: &quot;{replyTo.content.slice(0, 40)}...&quot;
               </span>
-              <button type="button" onClick={() => setReplyTo(null)} className="text-ink-muted hover:text-ink">
-                ✕
+              <button
+                type="button"
+                onClick={() => setReplyTo(null)}
+                className="text-ink-muted hover:text-ink transition-colors"
+              >
+                <X size={14} />
               </button>
             </div>
           )}
 
-          {/* Message Input Box */}
+          {/* Message Input */}
           <form onSubmit={handleSendMessage} className="border-t border-hairline bg-surface p-3 flex gap-2">
             <input
               type="text"
@@ -289,33 +287,34 @@ export default function Discussions() {
               placeholder={`Contribute to ${activeGroup?.title || 'discussion'}... (+20 XP)`}
               className="field text-xs flex-1"
             />
-            <button
-              type="submit"
-              disabled={!newText.trim()}
-              className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5"
-            >
+            <Button type="submit" variant="primary" size="sm" disabled={!newText.trim()}>
               <Send size={14} />
-              <span>Send</span>
-            </button>
+              <span className="hidden sm:inline">Send</span>
+            </Button>
           </form>
         </div>
       </div>
 
-      {/* Ask AI Modal */}
+      {/* ── Ask AI Modal ─────────────────────────────── */}
       {showAiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface p-5 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface p-6 shadow-2xl space-y-5 animate-scale-in">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
+              <h3 className="text-sm font-bold text-ink flex items-center gap-2">
                 <Sparkles size={16} className="text-accent" />
-                Ask AI Co-pilot ({activeGroup?.title})
+                Ask AI Co-pilot
+                <span className="text-ink-2 font-normal">( {activeGroup?.title} )</span>
               </h3>
-              <button type="button" onClick={() => setShowAiModal(false)} className="text-ink-muted hover:text-ink">
-                ✕
+              <button
+                type="button"
+                onClick={() => setShowAiModal(false)}
+                className="rounded-lg p-1 text-ink-muted hover:bg-surface-2 hover:text-ink transition-colors"
+              >
+                <X size={16} />
               </button>
             </div>
             <p className="text-xs text-ink-2">
-              StatSkill AI will analyze official MoSPI guidelines and post a contextually validated response directly into the discussion.
+              StatSkill AI will analyze official MoSPI guidelines and post a contextually validated response.
             </p>
             <textarea
               rows={3}
@@ -326,23 +325,13 @@ export default function Discussions() {
               disabled={aiLoading}
             />
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setShowAiModal(false)}
-                className="rounded-lg px-3 py-1.5 text-xs text-ink-2 hover:bg-surface-2"
-                disabled={aiLoading}
-              >
+              <Button variant="quiet" onClick={() => setShowAiModal(false)} disabled={aiLoading}>
                 Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleAskAi}
-                disabled={!aiPrompt.trim() || aiLoading}
-                className="btn-primary text-xs flex items-center gap-1.5"
-              >
+              </Button>
+              <Button variant="accent" onClick={handleAskAi} disabled={!aiPrompt.trim() || aiLoading}>
                 <Sparkles size={14} />
-                <span>{aiLoading ? 'Generating AI explanation...' : 'Post AI Response'}</span>
-              </button>
+                {aiLoading ? 'Generating...' : 'Post AI Response'}
+              </Button>
             </div>
           </div>
         </div>
@@ -350,4 +339,3 @@ export default function Discussions() {
     </div>
   );
 }
-

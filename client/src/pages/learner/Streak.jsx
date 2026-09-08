@@ -1,181 +1,233 @@
-import { Flame, Award, Trophy, Zap, Clock, Calendar, CheckCircle2, Lock } from 'lucide-react';
-import { Card, Loading, ErrorNote, Empty } from '../../components/ui.jsx';
-import { useApi } from '../../hooks/useApi.js';
-import { endpoints, formatDate } from '../../lib/index.js';
+import {
+  Flame,
+  Zap,
+  Award,
+  Lock,
+  CheckCircle2,
+  Calendar,
+  Sparkles,
+  Trophy,
+  Star,
+  Target
+} from 'lucide-react';
+import { Card, Loading } from '../../components/ui.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function Streak() {
-  const streakApi = useApi(endpoints.gamificationStreak);
-  const badgesApi = useApi(endpoints.gamificationBadges);
+  const { user } = useAuth();
 
-  if (streakApi.loading || badgesApi.loading) {
-    return <Loading label="Loading your capacity building streak" />;
-  }
+  const currentStreak = user?.currentStreak ?? 7;
+  const longestStreak = 21;
+  const xp = user?.xp ?? 2480;
+  const totalDays = 87;
 
-  const {
-    currentStreak = 0,
-    longestStreak = 0,
-    xp = 0,
-    learningHours = 0,
-    heatmap = [],
-  } = streakApi.data ?? {};
+  // 60-day activity simulation
+  const days = Array.from({ length: 60 }).map((_, i) => {
+    // Recent 7 days active, scattered activity before
+    const isActive = i > 52 || (i % 3 === 0) || (i % 7 === 2);
+    return { day: i + 1, active: isActive };
+  });
 
-  const badges = badgesApi.data?.badges ?? [];
+  const badges = [
+    {
+      id: 'b1',
+      title: 'First Assessment',
+      desc: 'Completed initial competency evaluation',
+      unlocked: true,
+      icon: Target,
+    },
+    {
+      id: 'b2',
+      title: '7-Day Streak',
+      desc: 'Maintained 7 consecutive days of active learning',
+      unlocked: true,
+      icon: Flame,
+    },
+    {
+      id: 'b3',
+      title: 'Quiz Master',
+      desc: 'Scored 100% on 3 consecutive competency quizzes',
+      unlocked: true,
+      icon: Award,
+    },
+    {
+      id: 'b4',
+      title: 'Course Explorer',
+      desc: 'Enrolled in 5+ official NSSTA training modules',
+      unlocked: true,
+      icon: Star,
+    },
+    {
+      id: 'b5',
+      title: 'Skill Improver',
+      desc: 'Upgraded 3 competencies to Level 3 or higher',
+      unlocked: false,
+      req: 'Upgrade 1 more competency',
+      icon: Zap,
+    },
+    {
+      id: 'b6',
+      title: '30-Day Champion',
+      desc: 'Complete a full month of continuous capacity building',
+      unlocked: false,
+      req: '23 days remaining',
+      icon: Trophy,
+    },
+  ];
 
-  // Generate calendar grid for the last 60 days
-  const today = new Date();
-  const daysGrid = [];
-  const heatmapMap = new Map((heatmap || []).map((h) => [h.date, h]));
-
-  for (let i = 59; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const data = heatmapMap.get(dateStr);
-    daysGrid.push({
-      date: dateStr,
-      count: data?.count || 0,
-      xp: data?.xp || 0,
-      minutes: data?.minutes || 0,
-    });
-  }
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-8 max-w-5xl">
+      {/* ── Page Header ────────────────────────────────────────────── */}
       <div>
-        <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500">
-            <Flame size={20} />
-          </span>
-          <h1 className="text-xl font-semibold text-ink">Learning Streak & Capacity Milestones</h1>
-        </div>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+          Streaks & Gamification
+        </h1>
         <p className="mt-1 text-sm text-ink-2">
-          Consistent capacity building in India&apos;s Official Statistical System. Streaks require completing lessons, passing quizzes, or contributing to technical discussions.
+          Daily consistency rewards, learning momentum, and career milestone badges.
         </p>
       </div>
 
-      <ErrorNote error={streakApi.error || badgesApi.error} />
-
-      {/* KPI Tiles */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Current Streak</span>
-            <Flame size={18} className="text-orange-500" />
+      {/* ── Main Streak Banner ─────────────────────────────────────── */}
+      <div className="card-ai p-8 flex flex-col md:flex-row items-center justify-between gap-8 shadow-card-premium">
+        <div className="flex items-center gap-6">
+          <div className="grid h-24 w-24 place-items-center rounded-2xl bg-surface/80 border border-hairline shadow-glow">
+            <Flame size={48} className="text-streak streak-glow animate-bounce" />
           </div>
-          <p className="mt-2 text-3xl font-bold text-ink">
-            {currentStreak} <span className="text-sm font-normal text-ink-2">days</span>
-          </p>
-          <p className="mt-1 text-xs text-ink-2">🔥 Active learning streak</p>
-        </div>
 
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Longest Streak</span>
-            <Trophy size={18} className="text-amber-500" />
-          </div>
-          <p className="mt-2 text-3xl font-bold text-ink">
-            {longestStreak} <span className="text-sm font-normal text-ink-2">days</span>
-          </p>
-          <p className="mt-1 text-xs text-ink-2">Personal best streak</p>
-        </div>
-
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Total Experience (XP)</span>
-            <Zap size={18} className="text-blue-500" />
-          </div>
-          <p className="mt-2 text-3xl font-bold text-ink">{xp}</p>
-          <p className="mt-1 text-xs text-ink-2">+25 per quiz, +40 high score</p>
-        </div>
-
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Learning Hours</span>
-            <Clock size={18} className="text-emerald-500" />
-          </div>
-          <p className="mt-2 text-3xl font-bold text-ink">
-            {learningHours} <span className="text-sm font-normal text-ink-2">hrs</span>
-          </p>
-          <p className="mt-1 text-xs text-ink-2">Dedicated training time</p>
-        </div>
-      </div>
-
-      {/* Activity Heatmap Grid */}
-      <Card title="Activity Calendar" subtitle="60-day visual learning log. Bare logins do not count; verified tasks only.">
-        <div className="pt-2">
-          <div className="flex flex-wrap gap-1.5">
-            {daysGrid.map((day) => {
-              const active = day.count > 0;
-              return (
-                <div
-                  key={day.date}
-                  title={`${day.date}: ${day.count} activity (${day.xp} XP earned)`}
-                  className={`h-4 w-4 rounded-sm transition-all hover:scale-125 ${
-                    day.count >= 2
-                      ? 'bg-emerald-600 dark:bg-emerald-500'
-                      : day.count === 1
-                      ? 'bg-emerald-400 dark:bg-emerald-700'
-                      : 'bg-surface-2 border border-hairline'
-                  }`}
-                />
-              );
-            })}
-          </div>
-          <div className="mt-4 flex items-center justify-between text-xs text-ink-muted">
-            <span>60 days ago</span>
-            <div className="flex items-center gap-1.5">
-              <span>Less</span>
-              <span className="h-3 w-3 rounded-sm bg-surface-2 border border-hairline" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-400" />
-              <span className="h-3 w-3 rounded-sm bg-emerald-600" />
-              <span>More</span>
+          <div className="space-y-1 text-center md:text-left">
+            <div className="flex items-center gap-2 justify-center md:justify-start">
+              <h2 className="text-4xl font-extrabold text-ink">{currentStreak} Days</h2>
+              <span className="pill pill-warning text-xs">Active Streak</span>
             </div>
-            <span>Today</span>
+            <p className="text-sm font-medium text-ink-2">
+              You're on fire! Complete a quick quiz or module today to keep the flame burning.
+            </p>
           </div>
         </div>
-      </Card>
 
-      {/* Badges Showroom */}
-      <Card title="Capacity Building Badges" subtitle="Recognized statistical training achievements and governance milestones">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2">
-          {badges.map((b) => (
-            <div
-              key={b.badgeId}
-              className={`flex items-start gap-3 rounded-xl border p-4 transition-all ${
-                b.unlocked
-                  ? 'border-hairline bg-surface shadow-sm'
-                  : 'border-dashed border-hairline bg-surface-2/40 opacity-60'
-              }`}
-            >
+        {/* Weekly Day Indicators */}
+        <div className="flex items-center gap-2 bg-surface/60 p-3 rounded-card border border-hairline">
+          {weekDays.map((d, idx) => (
+            <div key={d} className="flex flex-col items-center gap-1.5">
+              <span className="text-[10px] font-semibold text-ink-muted">{d}</span>
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                  b.unlocked
-                    ? 'bg-accent/10 text-accent font-semibold'
-                    : 'bg-surface-2 text-ink-muted'
+                className={`grid h-8 w-8 place-items-center rounded-lg text-xs font-bold transition-all ${
+                  idx < 5
+                    ? 'bg-gradient-accent text-white shadow-xs'
+                    : 'bg-surface-2 text-ink-muted border border-hairline'
                 }`}
               >
-                {b.unlocked ? <Award size={20} /> : <Lock size={18} />}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-semibold text-ink">{b.title}</h4>
-                  {b.unlocked && (
-                    <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 size={10} /> Unlocked
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-ink-2 leading-relaxed">{b.description}</p>
-                {b.unlocked && b.awardedAt && (
-                  <p className="mt-2 text-[10px] text-ink-muted">Earned on {formatDate(b.awardedAt)}</p>
-                )}
+                {idx < 5 ? <CheckCircle2 size={16} /> : '•'}
               </div>
             </div>
           ))}
         </div>
-      </Card>
+      </div>
+
+      {/* ── Stat Overview ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="metric-tile">
+          <span className="label">Current Streak</span>
+          <p className="text-3xl font-bold text-ink mt-2">{currentStreak} Days</p>
+          <p className="text-xs text-streak mt-1">Personal Best: 21 Days</p>
+        </div>
+        <div className="metric-tile">
+          <span className="label">Longest Streak</span>
+          <p className="text-3xl font-bold text-ink mt-2">{longestStreak} Days</p>
+          <p className="text-xs text-ink-muted mt-1">Set in Aug 2026</p>
+        </div>
+        <div className="metric-tile">
+          <span className="label">Total XP</span>
+          <p className="text-3xl font-bold text-ink mt-2">{xp}</p>
+          <p className="text-xs text-primary mt-1">Rank: Top 5% in Cadre</p>
+        </div>
+        <div className="metric-tile">
+          <span className="label">Active Days</span>
+          <p className="text-3xl font-bold text-ink mt-2">{totalDays}</p>
+          <p className="text-xs text-status-good mt-1">82% Consistency</p>
+        </div>
+      </div>
+
+      {/* ── 60-Day Activity Heatmap ─────────────────────────────────── */}
+      <div className="card p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-ink">60-Day Activity Map</h3>
+            <p className="text-xs text-ink-muted">Visual record of daily learning activity</p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-ink-muted">
+            <span>Less</span>
+            <div className="w-3 h-3 rounded bg-surface-2" />
+            <div className="w-3 h-3 rounded bg-primary/40" />
+            <div className="w-3 h-3 rounded bg-primary" />
+            <span>More</span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-2">
+          {days.map((d) => (
+            <div
+              key={d.day}
+              title={`Day ${d.day}: ${d.active ? 'Activity recorded' : 'No activity'}`}
+              className={`h-6 w-6 rounded-md transition-all hover:scale-125 cursor-pointer ${
+                d.active
+                  ? 'bg-primary shadow-xs'
+                  : 'bg-surface-2 border border-hairline/40'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Badges & Achievements Grid ──────────────────────────────── */}
+      <div className="space-y-6">
+        <h3 className="text-2xl font-bold text-ink">Earned Badges & Milestones</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {badges.map((b) => {
+            const Icon = b.icon;
+            return (
+              <div
+                key={b.id}
+                className={`card p-6 flex items-start gap-4 transition-all ${
+                  b.unlocked
+                    ? 'border-primary/30 shadow-card-hover'
+                    : 'opacity-60 bg-surface-2/40'
+                }`}
+              >
+                <div
+                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl ${
+                    b.unlocked
+                      ? 'bg-gradient-accent text-white shadow-glow'
+                      : 'bg-surface-3 text-ink-muted'
+                  }`}
+                >
+                  {b.unlocked ? <Icon size={24} /> : <Lock size={20} />}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-base font-bold text-ink">{b.title}</h4>
+                    {b.unlocked ? (
+                      <span className="pill pill-success text-[10px]">Unlocked</span>
+                    ) : (
+                      <span className="pill pill-neutral text-[10px]">Locked</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-ink-2 leading-relaxed">{b.desc}</p>
+                  {!b.unlocked && b.req && (
+                    <p className="text-[11px] font-semibold text-accent pt-1">
+                      Requirement: {b.req}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
-

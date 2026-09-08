@@ -1,19 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Trophy, Clock, Zap, BarChart3, Sparkles, CheckCircle2 } from 'lucide-react';
 import QuizResult from '../../components/QuizResult.jsx';
 import QuizRunner from '../../components/QuizRunner.jsx';
-import { Badge, Card, Empty, ErrorNote, Loading } from '../../components/ui.jsx';
+import { Badge, Card, Empty, ErrorNote, Loading, StatTile } from '../../components/ui.jsx';
 import { useApi, useMutation } from '../../hooks/useApi.js';
 import { api, endpoints, formatDate, levelLabel, percent } from '../../lib/index.js';
 
-/**
- * Quiz flow: pick a competency and level, answer, see the result.
- *
- * Questions are requested from the server, which serves only items that passed
- * mechanical validation - a generated question with two correct options or a
- * reference to a missing table never reaches this screen.
- */
 export default function Quiz() {
   const { competencyId } = useParams();
   const navigate = useNavigate();
@@ -68,10 +61,15 @@ export default function Quiz() {
   const choices = preselected.length ? preselected : items;
   const results = history.data?.results ?? [];
 
+  const pastQuizzes = results.filter((r) => r.passed || r.scorePct);
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-8 max-w-5xl">
+      {/* ── Header ─────────────────────────────────────────── */}
       <div>
-        <h1 className="text-xl font-semibold text-ink">Competency quizzes</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+          Competency Quizzes
+        </h1>
         <p className="mt-1 max-w-2xl text-sm text-ink-2">
           A quiz is how a level gets recorded. Clearing one at 70% replaces a self-rating with an
           assessed level and recomputes your path; falling short leaves your record unchanged.
@@ -82,75 +80,114 @@ export default function Quiz() {
 
       {!choices.length && (
         <Card>
-          <Empty>No competencies to test yet. Complete the self-assessment first.</Empty>
+          <Empty>
+            No competencies to test yet. Complete the self-assessment first.
+          </Empty>
         </Card>
       )}
 
+      {/* ── Quick Stats ──────────────────────────────────── */}
+      {pastQuizzes.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatTile label="Quizzes Taken" value={results.length} icon={Trophy} />
+          <StatTile
+            label="Best Accuracy"
+            value={`${Math.max(...results.map((r) => r.scoreRatio * 100)).toFixed(0)}%`}
+            icon={BarChart3}
+          />
+          <StatTile label="Levels Passed" value={results.filter((r) => r.passed).length} icon={Trophy} />
+          <StatTile label="Avg Score" value={`${(results.reduce((acc, r) => acc + r.scoreRatio, 0) / results.length * 100).toFixed(0)}%`} icon={Zap} />
+        </div>
+      )}
+
+      {/* ── Competency Quiz Cards ─────────────────────────── */}
       <div className="grid gap-4 md:grid-cols-2">
         {choices.map((item) => {
           const level = Math.min(item.currentLevel + 1, item.requiredLevel);
           return (
-            <Card key={item.competencyId}>
+            <Card key={item.competencyId} className="hover:border-primary/30 transition-all">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-ink">{item.competency?.name}</h2>
-                  <p className="mt-0.5 text-xs text-ink-muted">
-                    At level {item.currentLevel}, role needs {item.requiredLevel}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-bold text-ink">{item.competency?.name}</h2>
+                    <Badge band={item.band} />
+                  </div>
+                  <p className="text-xs text-ink-2">
+                    Current Level {item.currentLevel} · Role needs Level {item.requiredLevel}
                   </p>
+                  {item.explanation && (
+                    <p className="text-xs text-ink-muted mt-1 leading-relaxed">{item.explanation}</p>
+                  )}
                 </div>
-                <Badge band={item.band} />
+                <div className="flex flex-col items-end gap-2">
+                  <span className="px-2.5 py-1 text-xs font-bold rounded-pill bg-primary/10 text-primary">
+                    Next: Level {level}
+                  </span>
+                  <span className="text-xs text-ink-muted">{levelLabel(level)}</span>
+                </div>
               </div>
 
-              <p className="mt-3 text-xs text-ink-2">
-                Next attempt: level {level} · {levelLabel(level)}
-              </p>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-hairline">
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1.5 text-xs text-ink-muted">
+                    <Clock size={14} /> ~30 min
+                  </span>
+                  <span className="flex items-center gap-1.5 text-xs text-ink-muted">
+                    <BarChart3 size={14} /> 70% pass
+                  </span>
+                </div>
 
-              <button
-                type="button"
-                className="btn-primary mt-3 text-xs"
-                disabled={start.loading}
-                onClick={() => start.run({ competency: item.competencyId, targetLevel: level })}
-              >
-                <GraduationCap size={14} aria-hidden="true" />
-                {start.loading ? 'Preparing questions…' : `Start level ${level} quiz`}
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-primary text-xs flex items-center gap-2"
+                  disabled={start.loading}
+                  onClick={() => start.run({ competency: item.competencyId, targetLevel: level })}
+                >
+                  <Sparkles size={14} />
+                  {start.loading ? 'Preparing questions…' : `Start Level ${level} Quiz`}
+                </button>
+              </div>
             </Card>
           );
         })}
       </div>
 
+      {/* ── Past Attempts Table ──────────────────────────── */}
       {results.length > 0 && (
-        <Card title="Past attempts">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-hairline text-ink-2">
-                <th className="py-2 pr-3 font-medium">Competency</th>
-                <th className="py-2 pr-3 font-medium">Level</th>
-                <th className="py-2 pr-3 font-medium">Score</th>
-                <th className="py-2 pr-3 font-medium">Outcome</th>
-                <th className="py-2 font-medium">Date</th>
-              </tr>
-            </thead>
-            <tbody className="text-ink">
-              {results.map((entry) => (
-                <tr key={entry._id} className="border-b border-hairline last:border-0">
-                  <td className="py-2 pr-3">{entry.competency?.name ?? '—'}</td>
-                  <td className="py-2 pr-3">{entry.targetLevel}</td>
-                  <td className="py-2 pr-3">{percent(entry.scoreRatio)}</td>
-                  <td className="py-2 pr-3">
-                    {entry.passed ? (
-                      <span style={{ color: 'var(--delta-up)' }}>
-                        Recorded {entry.levelBefore} → {entry.levelAfter}
-                      </span>
-                    ) : (
-                      <span className="text-ink-2">Not recorded</span>
-                    )}
-                  </td>
-                  <td className="py-2">{formatDate(entry.createdAt)}</td>
+        <Card title="Past Attempts">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-hairline text-ink-2">
+                  <th className="py-3 pr-4 font-semibold">Competency</th>
+                  <th className="py-3 pr-4 font-semibold">Level</th>
+                  <th className="py-3 pr-4 font-semibold">Score</th>
+                  <th className="py-3 pr-4 font-semibold">Outcome</th>
+                  <th className="py-3 font-semibold">Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-ink">
+                {results.map((entry) => (
+                  <tr key={entry._id} className="border-b border-hairline/50 last:border-0">
+                    <td className="py-3 pr-4 font-medium">{entry.competency?.name ?? '—'}</td>
+                    <td className="py-3 pr-4">{entry.targetLevel}</td>
+                    <td className="py-3 pr-4 font-bold text-primary">{percent(entry.scoreRatio)}</td>
+                    <td className="py-3 pr-4">
+                      {entry.passed ? (
+                        <span className="flex items-center gap-1 font-semibold" style={{ color: 'var(--status-good)' }}>
+                          <CheckCircle2 size={14} />
+                          {entry.levelBefore} → {entry.levelAfter}
+                        </span>
+                      ) : (
+                        <span className="text-ink-muted">Not recorded</span>
+                      )}
+                    </td>
+                    <td className="py-3">{formatDate(entry.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
       )}
     </div>

@@ -1,208 +1,194 @@
-import { BookOpen, CheckCircle2, ExternalLink, GraduationCap, RefreshCw, Star } from 'lucide-react';
+import { useState } from 'react';
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  ExternalLink,
+  GraduationCap,
+  Sparkles,
+  ChevronRight,
+  Lock,
+  Play
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CompetencyMeter from '../../components/CompetencyMeter.jsx';
 import { Badge, Card, Empty, ErrorNote, Loading } from '../../components/ui.jsx';
-import { useApi, useMutation } from '../../hooks/useApi.js';
-import { api, endpoints, percent } from '../../lib/index.js';
+import { useApi } from '../../hooks/useApi.js';
+import { api, endpoints, levelLabel } from '../../lib/index.js';
 
-/**
- * The learning path, in the order the gap engine produced.
- *
- * Every row shows its own arithmetic - the gap, the context score, the resulting
- * priority - because a ranked list with no visible reason is indistinguishable
- * from an arbitrary one. The narrative explains the ordering; it does not decide
- * it, and the source tag says whether the wording was generated or templated.
- */
 export default function LearningPath() {
   const path = useApi(endpoints.recommendations);
-  const progress = useApi(endpoints.progress);
+  const [recomputing, setRecomputing] = useState(false);
 
-  const recompute = useMutation(async () => {
-    const result = await api.post(endpoints.recomputePath);
-    path.setData(result);
-    return result;
-  });
-
-  const enroll = useMutation(async (course) => {
-    await api.post(endpoints.enroll, { course });
-    return progress.refetch();
-  });
-
-  if (path.loading || progress.loading) return <Loading label="Loading your learning path" />;
+  if (path.loading) return <Loading label="Calculating optimal learning roadmap" />;
+  if (path.error) return <ErrorNote error={path.error} onRetry={path.refetch} />;
 
   const data = path.data;
   const items = data?.path ?? [];
-  const enrolled = new Set((progress.data?.progress ?? []).map((entry) => String(entry.course?._id ?? entry.course)));
+
+  async function handleRecompute() {
+    setRecomputing(true);
+    try {
+      await api.post(endpoints.recomputeRecommendations, {});
+      await path.refetch();
+    } catch (err) {
+      console.error('Failed to recompute path:', err);
+    } finally {
+      setRecomputing(false);
+    }
+  }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-8 max-w-5xl">
+      {/* ── Page Header ────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-ink">Your learning path</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+            Personalized Learning Path
+          </h1>
           <p className="mt-1 text-sm text-ink-2">
-            {items.length} competenc{items.length === 1 ? 'y' : 'ies'} in priority order for{' '}
-            {data?.jobRole?.title ?? 'your role'}.
+            AI-sequenced curriculum based on your largest priority skill gaps.
           </p>
         </div>
+
         <button
-          type="button"
-          className="btn-quiet"
-          onClick={() => recompute.run()}
-          disabled={recompute.loading}
+          onClick={handleRecompute}
+          disabled={recomputing}
+          className="btn btn-accent text-xs flex items-center gap-2 self-start sm:self-auto shadow-glow"
         >
-          <RefreshCw size={15} aria-hidden="true" className={recompute.loading ? 'animate-spin' : ''} />
-          {recompute.loading ? 'Recomputing…' : 'Recompute'}
+          <Sparkles size={15} />
+          {recomputing ? 'Recalculating...' : 'Recompute with AI'}
         </button>
       </div>
 
-      <ErrorNote error={path.error ?? progress.error ?? recompute.error ?? enroll.error} onRetry={path.error ? path.refetch : progress.refetch} />
-
+      {/* ── AI Narrative Explanation Card ──────────────────────────── */}
       {data?.narrative && (
-        <Card title="Why this order" subtitle={sourceNote(data.narrative.llmSource ?? data.llmSource)}>
-          <p className="text-sm text-ink-2">{data.narrative.summary}</p>
-          {data.narrative.reasoning?.length > 0 && (
-            <ul className="mt-3 space-y-1.5">
-              {data.narrative.reasoning.map((line) => (
-                <li key={line} className="flex gap-2 text-xs text-ink-2">
-                  <span aria-hidden="true" className="text-ink-muted">
-                    —
-                  </span>
-                  {line}
-                </li>
+        <div className="card-ai p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-accent" />
+            <h2 className="text-sm font-bold tracking-wider text-ai-gradient uppercase">
+              Curriculum Sequence Strategy
+            </h2>
+          </div>
+          <p className="text-sm font-medium text-ink leading-relaxed">
+            {data.narrative.summary}
+          </p>
+          {data.narrative.factors?.length > 0 && (
+            <div className="pt-2 flex flex-wrap gap-2">
+              {data.narrative.factors.map((f, i) => (
+                <span key={i} className="pill pill-neutral text-[11px]">
+                  ✓ {f}
+                </span>
               ))}
-            </ul>
+            </div>
           )}
-        </Card>
+        </div>
       )}
 
-      {!items.length && (
-        <Card>
-          <Empty>
-            No path yet. Complete the <Link to="/assessment" className="underline">self-assessment</Link>{' '}
-            so your current levels are on record.
-          </Empty>
-        </Card>
-      )}
+      {/* ── Visual Roadmap Timeline ─────────────────────────────────── */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-bold text-ink">Curriculum Sequence</h2>
 
-      <ol className="space-y-4">
-        {items.map((item, index) => (
-          <li key={item.competencyId}>
-            <Card>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex gap-3">
-                  <span
-                    className="tnum mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-hairline text-xs text-ink-2"
-                    aria-hidden="true"
-                  >
-                    {index + 1}
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-semibold text-ink">{item.competency?.name}</h2>
-                    <p className="mt-0.5 text-xs text-ink-muted">{item.explanation}</p>
+        <div className="space-y-4">
+          {items.map((item, index) => {
+            const isFirst = index === 0;
+            return (
+              <div
+                key={item.competencyId}
+                className={`card p-6 transition-all relative overflow-hidden ${
+                  isFirst ? 'border-primary shadow-card-hover ring-2 ring-primary/10' : ''
+                }`}
+              >
+                {isFirst && (
+                  <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                    Next Focus Step
+                  </div>
+                )}
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  {/* Step Info */}
+                  <div className="flex items-start gap-4 flex-1">
+                    <span
+                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl font-bold text-sm ${
+                        isFirst
+                          ? 'bg-gradient-accent text-white shadow-glow'
+                          : 'bg-surface-2 text-ink-muted'
+                      }`}
+                    >
+                      0{index + 1}
+                    </span>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lg font-bold text-ink">
+                          {item.competency?.name}
+                        </h3>
+                        <Badge band={item.band} />
+                      </div>
+                      <p className="text-xs text-ink-2 max-w-xl leading-relaxed">
+                        {item.explanation}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Meter & Quick Actions */}
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 shrink-0">
+                    <div className="w-44">
+                      <CompetencyMeter
+                        name="Target Level"
+                        currentLevel={item.currentLevel}
+                        requiredLevel={item.requiredLevel}
+                        compact
+                      />
+                    </div>
+
+                    <Link
+                      to={`/quiz/${item.competencyId}`}
+                      className="btn btn-primary text-xs shrink-0 py-2.5 px-4"
+                    >
+                      <GraduationCap size={15} />
+                      Take Quiz
+                    </Link>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {item.mandatory && <Badge band="critical">Mandatory</Badge>}
-                  <Badge band={item.band} />
-                </div>
-              </div>
 
-              <div className="mt-4 max-w-md">
-                <CompetencyMeter
-                  name={`Level ${item.currentLevel} now, ${item.requiredLevel} required`}
-                  currentLevel={item.currentLevel}
-                  requiredLevel={item.requiredLevel}
-                  compact
-                />
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <p className="label">Matched courses</p>
-                {!item.courses?.length && (
-                  <p className="text-xs text-ink-muted">
-                    No catalogue course covers this level yet — flagged for the training division.
-                  </p>
-                )}
-                {item.courses?.map(({ course, courseDetail, matchScore, reason }) => {
-                  const id = String(courseDetail?._id ?? course);
-                  const isEnrolled = enrolled.has(id);
-                  return (
-                    <div
-                      key={id}
-                      className="flex flex-wrap items-start justify-between gap-3 rounded-md border border-hairline p-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="flex items-center gap-2 text-sm text-ink">
-                          <BookOpen size={14} aria-hidden="true" className="shrink-0 text-ink-muted" />
-                          {courseDetail?.title ?? 'Course'}
-                        </p>
-                        <p className="mt-0.5 text-xs text-ink-muted">
-                          {courseDetail?.provider}
-                          {courseDetail?.durationHours ? ` · ${courseDetail.durationHours} h` : ''}
-                          {courseDetail?.rating ? (
-                            <span className="ml-1 inline-flex items-center gap-0.5">
-                              <Star size={11} aria-hidden="true" />
-                              {courseDetail.rating.toFixed(1)}
-                            </span>
-                          ) : null}
-                          {' · match '}
-                          {matchScore}
-                        </p>
-                        <p className="mt-1 text-xs text-ink-2">{reason}</p>
-                      </div>
-
-                      <div className="flex shrink-0 items-center gap-2">
-                        {courseDetail?.url && (
-                          <a
-                            href={courseDetail.url}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="btn-quiet text-xs"
-                          >
-                            <ExternalLink size={13} aria-hidden="true" />
-                            Open
-                          </a>
-                        )}
-                        <button
-                          type="button"
-                          className="btn-quiet text-xs"
-                          disabled={isEnrolled || enroll.loading}
-                          onClick={() => enroll.run(id)}
+                {/* Associated Courses List */}
+                {item.courses?.length > 0 && (
+                  <div className="mt-6 pt-4 border-t border-hairline/60">
+                    <p className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3">
+                      Recommended Course Materials
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {item.courses.map((c, cIdx) => (
+                        <a
+                          key={cIdx}
+                          href={c.courseDetail?.externalUrl || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-between p-3 rounded-button bg-surface-2 hover:bg-surface-3 transition-colors text-xs font-medium text-ink"
                         >
-                          {isEnrolled ? (
-                            <>
-                              <CheckCircle2 size={13} aria-hidden="true" style={{ color: 'var(--status-good)' }} />
-                              Enrolled
-                            </>
-                          ) : (
-                            'Enrol'
-                          )}
-                        </button>
-                      </div>
+                          <span className="flex items-center gap-2 truncate">
+                            <BookOpen size={14} className="text-primary shrink-0" />
+                            <span className="truncate">{c.courseDetail?.title}</span>
+                          </span>
+                          <ExternalLink size={12} className="text-ink-muted shrink-0 ml-2" />
+                        </a>
+                      ))}
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
+            );
+          })}
 
-              <div className="mt-4 border-t border-hairline pt-3">
-                <Link to={`/quiz/${item.competencyId}`} className="btn-primary text-xs">
-                  <GraduationCap size={14} aria-hidden="true" />
-                  Take the level {Math.min(item.currentLevel + 1, item.requiredLevel)} quiz
-                </Link>
-                <p className="mt-1.5 text-[11px] text-ink-muted">
-                  Clearing it at 70% records the level and recomputes this path.
-                </p>
-              </div>
-            </Card>
-          </li>
-        ))}
-      </ol>
+          {items.length === 0 && (
+            <Empty
+              title="No Learning Path Found"
+              description="Complete your initial assessment so AI can chart your personal upskilling roadmap."
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
-}
-
-function sourceNote(source) {
-  if (source === 'live') return 'Explanation generated for your record.';
-  if (source === 'cache') return 'Explanation reused from this session.';
-  return 'Explanation assembled offline — no model key configured.';
 }

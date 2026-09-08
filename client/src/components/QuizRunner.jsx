@@ -1,15 +1,8 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Send } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Send, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
 import { Card, ErrorNote } from './ui.jsx';
 import { levelLabel } from '../lib/format.js';
 
-/**
- * One question at a time.
- *
- * The options arrive without their correctness - the API withholds it until the
- * attempt is submitted, so the answer key is never in the page. Navigation is
- * free in both directions and nothing is scored client-side.
- */
 export default function QuizRunner({ attempt, onSubmit, submitting, error }) {
   const [index, setIndex] = useState(0);
   const [chosen, setChosen] = useState({});
@@ -17,107 +10,146 @@ export default function QuizRunner({ attempt, onSubmit, submitting, error }) {
   const questions = attempt.questions ?? [];
   const question = questions[index];
   const answeredCount = Object.keys(chosen).length;
+  const totalAnswered = Object.keys(chosen).filter((k) => chosen[k] !== null).length;
   const isLast = index === questions.length - 1;
 
   if (!question) return null;
 
+  const options = Array.isArray(question.options) ? question.options : [];
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-5">
+      {/* Question Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-ink">{attempt.competency?.name}</h1>
+          <h1 className="text-lg font-bold text-ink">{attempt.competency?.name}</h1>
           <p className="mt-0.5 text-xs text-ink-2">
-            Level {attempt.targetLevel} · {levelLabel(attempt.targetLevel)} · 70% to record the level
+            Level {attempt.targetLevel} · {levelLabel(attempt.targetLevel)} • 70% accuracy needed
           </p>
         </div>
-        <p className="tnum text-xs text-ink-2">
-          Question {index + 1} of {questions.length}
-        </p>
+        <div className="flex items-center gap-3">
+          <span className="tnum text-sm text-ink-2 font-medium">
+            Question {index + 1} / {questions.length}
+          </span>
+          <span className="px-2.5 py-0.5 text-xs font-semibold rounded-pill bg-surface-2 text-ink-muted">
+            {totalAnswered}/{questions.length} answered
+          </span>
+        </div>
       </div>
 
-      {/* Progress is a single thin bar, not a chart - no axis, no legend. */}
-      <div className="h-1.5 w-full rounded-sm bg-surface-2" role="presentation">
+      {/* Progress Bar */}
+      <div className="h-2 w-full rounded-pill bg-surface-2 overflow-hidden">
         <div
-          className="h-full rounded-r-[4px]"
-          style={{
-            width: `${(answeredCount / questions.length) * 100}%`,
-            background: 'var(--series-1)',
-          }}
+          className="h-full rounded-pill bg-gradient-accent transition-all duration-300"
+          style={{ width: `${(totalAnswered / questions.length) * 100}%` }}
         />
       </div>
 
+      {/* Question Card */}
       <Card>
-        <p className="text-sm text-ink">{question.stem}</p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary/10 text-primary font-bold">
+              Q
+            </span>
+            <p className="text-base text-ink leading-relaxed">{question.stem}</p>
+          </div>
 
-        <fieldset className="mt-4 space-y-2">
-          <legend className="sr-only">Select one answer</legend>
-          {question.options.map((option, optionIndex) => {
-            const optionId = String(option._id ?? optionIndex);
-            const selected = chosen[question._id] === optionId;
-            return (
-              <label
-                key={optionId}
-                className={`flex cursor-pointer gap-3 rounded-md border p-3 text-sm transition-colors ${
-                  selected ? 'border-transparent bg-surface-2 text-ink' : 'border-hairline text-ink-2 hover:bg-surface-2'
-                }`}
-                style={selected ? { boxShadow: 'inset 2px 0 0 var(--series-1)' } : undefined}
-              >
-                <input
-                  type="radio"
-                  name={question._id}
-                  className="sr-only"
-                  checked={selected}
-                  onChange={() => setChosen({ ...chosen, [question._id]: optionId })}
-                />
-                <span className="tnum shrink-0 text-ink-muted" aria-hidden="true">
-                  {String.fromCharCode(65 + optionIndex)}
-                </span>
-                {option.text}
-              </label>
-            );
-          })}
-        </fieldset>
+          <fieldset className="space-y-2">
+            <legend className="sr-only">Select one answer</legend>
+            {options.map((option, optionIndex) => {
+              const optionId = String(option._id ?? optionIndex);
+              const selected = chosen[question._id] === optionId;
+              return (
+                <label
+                  key={optionId}
+                  className={`flex cursor-pointer gap-3 rounded-md border p-3 text-sm transition-all ${
+                    selected
+                      ? 'border-transparent bg-primary-light text-ink font-medium'
+                      : 'border-hairline text-ink-2 hover:bg-surface-2'
+                  }`}
+                  style={
+                    selected
+                      ? { boxShadow: 'inset 3px 0 0 var(--primary)', backgroundColor: 'var(--primary-light)' }
+                      : {}
+                  }
+                >
+                  <input
+                    type="radio"
+                    name={question._id}
+                    className="sr-only"
+                    checked={selected}
+                    onChange={() => setChosen({ ...chosen, [question._id]: optionId })}
+                  />
+                  <span className="tnum shrink-0 text-xs font-bold text-ink-muted" aria-hidden="true">
+                    {String.fromCharCode(65 + optionIndex)}
+                  </span>
+                  <span className="flex-1">{option.text}</span>
+                  {option.explanation && (
+                    <HelpCircle size={14} className="text-ink-muted shrink-0" />
+                  )}
+                </label>
+              );
+            })}
+          </fieldset>
+        </div>
       </Card>
 
       <ErrorNote error={error} />
 
-      <div className="flex items-center justify-between gap-3">
+      {/* Navigation */}
+      <div className="flex items-center justify-between">
         <button
           type="button"
-          className="btn-quiet"
-          disabled={index === 0}
+          className="btn btn-quiet"
+          disabled={index === 0 || submitting}
           onClick={() => setIndex((current) => current - 1)}
         >
-          <ChevronLeft size={15} aria-hidden="true" />
+          <ChevronLeft size={15} />
           Previous
         </button>
 
         {isLast ? (
           <button
             type="button"
-            className="btn-primary"
-            disabled={answeredCount < questions.length || submitting}
+            className="btn btn-primary flex items-center gap-2"
+            disabled={totalAnswered < questions.length || submitting}
             onClick={() =>
               onSubmit(
-                questions.map((item) => ({ question: item._id, option: chosen[item._id] ?? null })),
+                questions.map((item) => ({
+                  question: item._id,
+                  option: chosen[item._id] ?? null,
+                })),
               )
             }
           >
-            <Send size={15} aria-hidden="true" />
-            {submitting ? 'Scoring…' : 'Submit answers'}
+            {submitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                Scoring…
+              </>
+            ) : (
+              'Submit Answers'
+            )}
           </button>
         ) : (
-          <button type="button" className="btn-primary" onClick={() => setIndex((current) => current + 1)}>
+          <button
+            type="button"
+            className="btn btn-primary flex items-center gap-2"
+            disabled={totalAnswered < options.length || submitting}
+            onClick={() => setIndex((current) => current + 1)}
+          >
             Next
-            <ChevronRight size={15} aria-hidden="true" />
+            <ChevronRight size={15} />
           </button>
         )}
       </div>
 
-      {isLast && answeredCount < questions.length && (
+      {/* Incomplete Warning */}
+      {isLast && totalAnswered < questions.length && (
         <p className="text-center text-xs text-ink-muted">
-          {questions.length - answeredCount} question
-          {questions.length - answeredCount === 1 ? '' : 's'} still unanswered.
+          {questions.length - totalAnswered} question
+          {questions.length - totalAnswered === 1 ? '' : 's'} still unanswered.
         </p>
       )}
     </div>

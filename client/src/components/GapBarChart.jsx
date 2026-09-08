@@ -3,106 +3,76 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  LabelList,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import ChartFrame from './ChartFrame.jsx';
-import { percent, shorten } from '../lib/format.js';
 
-/**
- * Single-series horizontal bar chart for priority scores.
- *
- * One series, so no legend - the title names the measure. Bars are all one hue:
- * length already encodes magnitude, and repainting each bar by its own value
- * would say the same thing twice while implying the colours mean categories. The
- * band sits in the tooltip and the table instead.
- *
- * Horizontal because competency names are long: rotated x-axis labels are the
- * most common way a bar chart of named things becomes unreadable.
- */
-export default function GapBarChart({ rows = [], title, subtitle, height = 300 }) {
-  const data = rows.map((row) => ({
-    name: shorten(row.competency?.name ?? row.name, 26),
-    fullName: row.competency?.name ?? row.name,
-    priority: Number(row.priority ?? 0),
-    current: row.currentLevel,
-    required: row.requiredLevel,
-    band: row.band,
+export default function GapBarChart({
+  rows = [],
+  title,
+  subtitle,
+  height = 300,
+  maxBars = 8,
+}) {
+  const data = rows.slice(0, maxBars).map((r) => ({
+    name: r.name || r.competency?.name || 'Competency',
+    priority: Number(r.priorityScore ?? r.gap ?? 0),
+    gap: r.gap ?? 0,
+    current: r.currentLevel ?? 0,
+    required: r.requiredLevel ?? 0,
   }));
 
   return (
-    <ChartFrame
-      title={title}
-      subtitle={subtitle}
-      height={height}
-      columns={['Competency', 'Current', 'Required', 'Priority', 'Band']}
-      rows={data.map((row) => [
-        row.fullName,
-        row.current,
-        row.required,
-        percent(row.priority, 1),
-        row.band,
-      ])}
-    >
+    <ChartFrame title={title} subtitle={subtitle} height={height}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} layout="vertical" margin={{ top: 4, right: 44, bottom: 4, left: 4 }}>
-          {/* Grid only on the measured axis, hairline weight, no vertical rules. */}
-          <CartesianGrid horizontal={false} stroke="var(--gridline)" />
+        <BarChart
+          data={data}
+          layout="vertical"
+          margin={{ top: 10, right: 30, left: 40, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--gridline)" horizontal={false} />
           <XAxis
             type="number"
-            domain={[0, 1]}
-            tickFormatter={(value) => percent(value)}
-            stroke="var(--baseline)"
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            stroke="var(--text-muted)"
+            fontSize={12}
             tickLine={false}
           />
           <YAxis
             type="category"
             dataKey="name"
-            width={150}
-            stroke="var(--baseline)"
-            tick={{ fill: 'var(--text-secondary)', fontSize: 11 }}
+            stroke="var(--text-secondary)"
+            fontSize={12}
             tickLine={false}
-            axisLine={false}
+            width={140}
           />
           <Tooltip
-            cursor={{ fill: 'var(--surface-2)' }}
-            content={<GapTooltip />}
-            wrapperStyle={{ outline: 'none' }}
+            content={({ active, payload }) => {
+              if (active && payload && payload.length) {
+                const item = payload[0].payload;
+                return (
+                  <div className="card p-3 shadow-card-hover border border-hairline bg-surface text-xs space-y-1">
+                    <p className="font-bold text-ink">{item.name}</p>
+                    <p className="text-primary font-semibold">Priority Score: {item.priority.toFixed(2)}</p>
+                    <p className="text-ink-muted">Current: Level {item.current} → Target: Level {item.required}</p>
+                  </div>
+                );
+              }
+              return null;
+            }}
           />
-          <Bar dataKey="priority" radius={[0, 4, 4, 0]} barSize={14} isAnimationActive={false}>
-            {data.map((row) => (
-              <Cell key={row.fullName} fill="var(--series-1)" />
+          <Bar dataKey="priority" radius={[0, 6, 6, 0]}>
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={index === 0 ? 'var(--primary)' : 'var(--accent)'}
+              />
             ))}
-            {/* Selective direct labels: the value, at the end of each bar. */}
-            <LabelList
-              dataKey="priority"
-              position="right"
-              formatter={(value) => percent(value)}
-              style={{ fill: 'var(--text-secondary)', fontSize: 11 }}
-            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
     </ChartFrame>
-  );
-}
-
-function GapTooltip({ active, payload }) {
-  if (!active || !payload?.length) return null;
-  const row = payload[0].payload;
-  return (
-    <div className="rounded-md border border-hairline bg-surface p-2.5 text-xs shadow-card">
-      <p className="font-medium text-ink">{row.fullName}</p>
-      <p className="mt-1 text-ink-2">
-        Level {row.current} against a requirement of {row.required}
-      </p>
-      <p className="tnum mt-0.5 text-ink-2">
-        Priority {percent(row.priority, 1)} · {row.band}
-      </p>
-    </div>
   );
 }
