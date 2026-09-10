@@ -14,6 +14,7 @@ import assistantRoutes from './assistant.js';
 import trainerRoutes from './trainer.js';
 import discussionRoutes from './discussions.js';
 import gamificationRoutes from './gamification.js';
+import publicStatsRoutes from './publicStats.js';
 import { checkAllServices } from '../services/healthMonitor.js';
 import { env } from '../config/env.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
@@ -74,6 +75,9 @@ router.use('/admin/officers', adminOfficerRoutes);
 router.use('/admin/courses', adminCourseRoutes);
 router.use('/admin/questions', adminQuestionRoutes);
 router.use('/admin', adminRoutes);
+
+// Public landing-page numbers — no auth, safe to embed in the marketing site.
+router.use('/stats', publicStatsRoutes);
 
 // Framework reference data is mounted at the root: /competencies, /courses, ...
 router.use('/', frameworkRoutes);

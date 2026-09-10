@@ -1,15 +1,45 @@
 import { createApp } from './app.js';
+import mongoose from 'mongoose';
 import { connectDb, disconnectDb } from './config/db.js';
 import { env } from './config/env.js';
 import { llmProviderName } from './services/llm/index.js';
 
+const mongooseReady = () => mongoose.connection.readyState === 1;
+
 /**
- * Entry point. The database is connected before the port is opened: a server that
- * accepts requests it cannot serve produces 500s that look like application bugs.
+ * Entry point. Production still refuses to serve without the database; in
+ * development the API now boots degraded instead of dying, so the site and the
+ * health endpoint stay reachable during a demo even when mongod is not up yet.
+ * A background retry heals the connection the moment MongoDB appears.
  */
 
 async function main() {
-  await connectDb();
+  let dbUp = false;
+  try {
+    await connectDb();
+    dbUp = true;
+  } catch {
+    if (env.isProd) throw new Error('Database unavailable — refusing to serve in production.');
+    console.warn('[api] booting DEGRADED without a database. Live data endpoints fall back to snapshots.');
+  }
+
+  if (!dbUp) {
+    const retry = setInterval(async () => {
+      if (mongooseReady()) {
+        clearInterval(retry);
+        return;
+      }
+      if (mongoose.connection.readyState === 2) return; // a connect is already in flight
+      try {
+        await connectDb(undefined, { quiet: true });
+        clearInterval(retry);
+        console.log('[api] database healed — live data endpoints are now serving.');
+      } catch {
+        /* keep retrying quietly */
+      }
+    }, 5000);
+    retry.unref?.();
+  }
 
   const app = createApp();
   const server = app.listen(env.port, () => {

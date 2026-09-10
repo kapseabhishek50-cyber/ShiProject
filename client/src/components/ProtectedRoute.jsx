@@ -13,7 +13,9 @@ export default function ProtectedRoute({ children, role }) {
 
   if (status === 'loading') return <Loading label="Checking your session" />;
 
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  // Visitors without a session land on the public marketing site instead of a
+  // bare form; "Sign in" from there returns them to where they were headed.
+  if (!user) return <Navigate to="/foldcraft" replace state={{ from: location.pathname }} />;
 
   if (role) {
     const roles = Array.isArray(role) ? role : [role];

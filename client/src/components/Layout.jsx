@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { initials } from '../lib/format.js';
 import { ThemeToggle } from './ui.jsx';
 import FloatingChatbot from './FloatingChatbot.jsx';
+import ScrollProgress from './fx/ScrollProgress.jsx';
 
 const LEARNER_NAV = [
   { to: '/', label: 'Overview', icon: LayoutDashboard, end: true },

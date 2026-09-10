@@ -22,7 +22,15 @@ import Leaderboard from './pages/learner/Leaderboard.jsx';
 import TrainerDashboard from './pages/trainer/Dashboard.jsx';
 import QuizGenerator from './pages/trainer/QuizGenerator.jsx';
 import CloudShaderDemo from './components/cloud-shader-demo.jsx';
-import FoldcraftHero from './components/FoldcraftHero.jsx';
+
+// The public landing ships its own chunk (three.js lives behind this import),
+// so authenticated app users never download the 3D engine.
+const FoldcraftHero = lazy(() => import('./components/FoldcraftHero.jsx'));
+const LandingFallback = () => (
+  <div className="grid min-h-screen place-items-center bg-plane">
+    <p className="text-sm font-medium text-ink-muted">Loading StatSkill AI…</p>
+  </div>
+);
 
 export default function App() {
   const { isAdmin, isTrainer } = useAuth();
@@ -126,8 +134,15 @@ export default function App() {
         />
       </Route>
 
-      {/* Public Foldcraft Hero Landing Page */}
-      <Route path="/foldcraft" element={<FoldcraftHero />} />
+      {/* Public Foldcraft Hero Landing Page (lazy — carries the 3D engine) */}
+      <Route
+        path="/foldcraft"
+        element={
+          <Suspense fallback={<LandingFallback />}>
+            <FoldcraftHero />
+          </Suspense>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
