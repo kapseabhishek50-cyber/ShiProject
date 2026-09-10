@@ -74,7 +74,10 @@ the context-aware local fallback answers instead.
 
 - `npm run dev:mongo` boots a real, ephemeral `mongod` on
   `mongodb://127.0.0.1:27017` (binary fetched on first run). Follow with
-  `npm run seed` as usual.
+  `npm run seed` as usual. If the binary cannot be downloaded (restricted
+  sandboxes), the same command automatically falls back to a SQLite-backed
+  MongoDB-compatible server — the API cannot tell the difference, and its
+  data persists in `server/.dev-data/` across restarts.
 - The API also boots *degraded* in development when the database is down: the
   health endpoint reports it, live data routes answer with the seed snapshot,
   and a background retry heals the connection the moment MongoDB appears.
