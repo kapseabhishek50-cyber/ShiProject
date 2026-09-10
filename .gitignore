@@ -3,6 +3,9 @@ dist/
 build/
 coverage/
 
+# Local dev database files (SQLite-backed EasyDB fallback)
+server/.dev-data/
+
 # Environment - never commit real keys
 .env
 .env.local
