@@ -152,6 +152,14 @@ export default function Login() {
       {/* ── Right panel: Sign-in form ── */}
       <div className="flex flex-col justify-center bg-plane p-6 sm:p-10">
         <div className="mx-auto w-full max-w-sm">
+          <Link
+            to="/foldcraft"
+            className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted transition-colors hover:text-primary"
+          >
+            <ArrowRight size={12} className="rotate-180" />
+            Back to the website
+          </Link>
+
           {/* Mobile brand */}
           <div className="md:hidden mb-6 flex items-center gap-2.5">
             <span className="grid h-9 w-9 place-items-center rounded-button text-white font-bold text-[13px]" style={{ background: 'var(--navy)' }}>
@@ -163,7 +171,8 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="card !p-6 animate-enter">
+          <Reveal variant="flip-3d" duration={650}>
+          <Tilt3DCard max={4} scale={1.005} className="card !p-6">
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h2 className="text-[19px] font-bold tracking-tight text-ink">
@@ -225,10 +234,12 @@ export default function Login() {
                 Register
               </Link>
             </p>
-          </div>
+          </Tilt3DCard>
+          </Reveal>
 
           {/* Demo personas */}
-          <div className="card mt-4 !p-4 animate-enter-1">
+          <Reveal variant="up" delay={140} className="mt-4">
+          <div className="card !p-4">
             <div className="mb-3 flex items-center justify-between">
               <p className="label">Evaluation Demo Personas</p>
               <span className="flex items-center gap-1 text-[10px] font-medium text-ink-muted">
@@ -268,6 +279,7 @@ export default function Login() {
               ))}
             </ul>
           </div>
+          </Reveal>
         </div>
       </div>
     </div>

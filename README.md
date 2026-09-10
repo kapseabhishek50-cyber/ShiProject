@@ -70,6 +70,41 @@ results, so answers are grounded in that learner. `/api/health` reports
 `google-gemini` when the key is active. If the key is absent or unavailable,
 the context-aware local fallback answers instead.
 
+### No MongoDB? Two escape hatches
+
+- `npm run dev:mongo` boots a real, ephemeral `mongod` on
+  `mongodb://127.0.0.1:27017` (binary fetched on first run). Follow with
+  `npm run seed` as usual.
+- The API also boots *degraded* in development when the database is down: the
+  health endpoint reports it, live data routes answer with the seed snapshot,
+  and a background retry heals the connection the moment MongoDB appears.
+
+---
+
+## The public website is dynamic
+
+The landing page at `/foldcraft` (the default destination for signed-out
+visitors) is not a static brochure:
+
+- `GET /api/stats/public` returns the platform's live counts — officers,
+  competencies, courses, quizzes, communities — straight from MongoDB, plus the
+  competency names the ticker slides past. No auth; safe for a public page.
+- The page refetches every 60 seconds. A green **LIVE** pill means the numbers
+  on screen are database counts; an amber **Demo snapshot** pill means the API
+  is unreachable and the bundled seed snapshot is shown instead. It never
+  claims to be live when it isn't.
+- Motion is layered, not decorative-only: a WebGL (three.js) hero scene with
+  pointer parallax and scroll drift, mouse-tracking 3D tilt cards with glare,
+  scroll-progress bars, IntersectionObserver reveals, parallax sections,
+  count-up statistics and a scroll-driven timeline. Everything respects
+  `prefers-reduced-motion`, pauses off-screen, and the 3D engine ships in a
+  lazy chunk so authenticated users never download it.
+
+The reusable effects live in `client/src/components/fx/` (`Reveal`, `CountUp`,
+`Tilt3DCard`, `ScrollProgress`, `Parallax`, `Marquee`, `Hero3DScene`) and are
+used by the app pages too — the learner dashboard tiles count up and tilt, and
+a progress line runs across the top of the app shell.
+
 ---
 
 ## How the numbers work

@@ -18,6 +18,13 @@
   box-sizing: border-box;
 }
 
+/* Anchor jumps glide instead of snap (unless the user prefers otherwise). */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* ── Light Theme Tokens (default) ───────────────────────────── */
 :root {
   color-scheme: light;
@@ -604,6 +611,196 @@
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   Motion & 3D FX layer
+   Scroll progress · 3D tilt · marquee · aurora · float · glass
+   ============================================================ */
+
+/* ── Scroll progress bar ────────────────────────────────────── */
+.scroll-progress {
+  @apply fixed left-0 top-0 z-[90] w-full pointer-events-none;
+  background: transparent;
+}
+.scroll-progress-fill {
+  @apply h-full w-full origin-left;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+/* ── 3D tilt card ───────────────────────────────────────────── */
+.tilt-3d {
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+.tilt-glare {
+  @apply pointer-events-none absolute inset-0 rounded-[inherit];
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  mix-blend-mode: soft-light;
+  z-index: 2;
+}
+.tilt-pop {
+  transform: translateZ(34px);
+}
+.tilt-pop-sm {
+  transform: translateZ(18px);
+}
+
+/* ── 3D hero canvas ─────────────────────────────────────────── */
+.hero3d-canvas {
+  @apply absolute inset-0 h-full w-full;
+  display: block;
+  outline: none;
+}
+
+/* ── Aurora background blobs ────────────────────────────────── */
+.aurora {
+  @apply pointer-events-none absolute rounded-full;
+  filter: blur(70px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.aurora-blue { background: radial-gradient(circle, rgba(0, 102, 230, 0.32), transparent 65%); }
+.aurora-ice { background: radial-gradient(circle, rgba(94, 163, 242, 0.30), transparent 65%); }
+.aurora-navy { background: radial-gradient(circle, rgba(6, 59, 120, 0.22), transparent 65%); }
+
+@keyframes auroraDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(36px, -28px, 0) scale(1.08); }
+  66% { transform: translate3d(-30px, 22px, 0) scale(0.95); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.aurora-drift { animation: auroraDrift 16s ease-in-out infinite; }
+.aurora-drift-slow { animation: auroraDrift 24s ease-in-out -8s infinite; }
+
+/* ── Floating chips / cards ─────────────────────────────────── */
+@keyframes floatY {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -12px, 0); }
+}
+.float-y { animation: floatY 6s ease-in-out infinite; }
+.float-y-slow { animation: floatY 9s ease-in-out -3s infinite; }
+
+/* ── Glass surface ──────────────────────────────────────────── */
+.glass {
+  background: color-mix(in srgb, var(--surface-1) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+
+/* ── Blueprint grid texture ─────────────────────────────────── */
+.bg-blueprint {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--gridline) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--gridline) 55%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 35%, transparent 78%);
+}
+
+/* ── Live status dot ────────────────────────────────────────── */
+@keyframes livePulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-good) 55%, transparent); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.live-dot {
+  @apply inline-block h-2 w-2 rounded-full;
+  background: var(--status-good);
+  animation: livePulse 2s ease-out infinite;
+}
+.live-dot-off { background: var(--achievement); animation: none; }
+
+/* ── Marquee ────────────────────────────────────────────────── */
+.marquee {
+  @apply relative w-full overflow-hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee-track {
+  @apply flex w-max;
+  animation: marqueeSlide 36s linear infinite;
+}
+.marquee[data-reverse] .marquee-track { animation-direction: reverse; }
+.marquee-group {
+  @apply flex shrink-0 items-center gap-3 pr-3;
+}
+@keyframes marqueeSlide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* ── Scroll-down indicator ──────────────────────────────────── */
+@keyframes scrollNudge {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 1; }
+  50% { transform: translate3d(0, 7px, 0); opacity: 0.55; }
+}
+.scroll-nudge { animation: scrollNudge 1.8s ease-in-out infinite; }
+
+/* ── Timeline (how it works) ────────────────────────────────── */
+.timeline-rail {
+  @apply absolute bottom-2 left-[19px] top-2 w-px;
+  background: var(--gridline);
+}
+.timeline-progress {
+  @apply absolute left-0 top-0 w-full origin-top;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary), var(--primary-bright));
+  transform: scaleY(var(--tl-progress, 0));
+}
+
+/* ── Primary button sheen on hover ──────────────────────────── */
+.btn-sheen { position: relative; overflow: hidden; }
+.btn-sheen::after {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+.btn-sheen:hover::after { transform: translateX(120%); }
+
+/* ── Headline word reveal ───────────────────────────────────── */
+@keyframes wordRise {
+  from { opacity: 0; transform: translate3d(0, 0.6em, -40px) rotateX(35deg); }
+  to { opacity: 1; transform: none; }
+}
+.word-rise > span {
+  display: inline-block;
+  animation: wordRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: 50% 100%;
+}
+
+/* ── Section eyebrow label ──────────────────────────────────── */
+.eyebrow {
+  @apply inline-flex items-center gap-2 rounded-pill border px-3 py-1 text-xs font-semibold;
+  border-color: var(--primary-border);
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+/* ── Hover-lift card (non-tilt fallback contexts) ───────────── */
+.lift-card {
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.lift-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--primary-border);
+}
+
+/* ── Reduced motion: switch the FX layer off ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora,
+  .float-y,
+  .float-y-slow,
+  .scroll-nudge,
+  .word-rise > span {
+    animation: none !important;
+  }
+  .marquee-track { animation-play-state: paused !important; }
 }
 
 /* Reduced motion */

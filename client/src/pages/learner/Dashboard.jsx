@@ -13,6 +13,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import CompetencyMeter from '../../components/CompetencyMeter.jsx';
 import { Badge, Card, Empty, ErrorNote, Loading } from '../../components/ui.jsx';
+import { CountUp, Reveal, Tilt3DCard } from '../../components/fx/index.js';
 import { useApi } from '../../hooks/useApi.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { endpoints, percent } from '../../lib/index.js';
@@ -80,55 +81,65 @@ export default function Dashboard() {
         onRetry={path.error ? path.refetch : mine.error ? mine.refetch : quizzes.refetch}
       />
 
-      {/* ── 2. Four Metric Tiles ─────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-enter-1">
+      {/* ── 2. Four Metric Tiles — 3D tilt + count-up, staggered on scroll ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" style={{ perspective: '1200px' }}>
         {/* Streak */}
-        <div className="metric-tile">
+        <Reveal variant="flip-3d" delay={0}>
+        <Tilt3DCard max={8} className="metric-tile h-full">
           <div className="flex items-center justify-between gap-2">
             <span className="label">Current Streak</span>
             <span className="icon-chip"><Flame size={16} strokeWidth={1.8} /></span>
           </div>
-          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">{user?.currentStreak ?? 7} <span className="text-[13px] font-medium text-ink-muted">days</span></p>
+          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink"><CountUp end={user?.currentStreak ?? 7} /> <span className="text-[13px] font-medium text-ink-muted">days</span></p>
           <p className="mt-1.5 text-xs font-semibold text-streak">
             Keep learning today
           </p>
-        </div>
+        </Tilt3DCard>
+        </Reveal>
 
         {/* XP */}
-        <div className="metric-tile">
+        <Reveal variant="flip-3d" delay={90}>
+        <Tilt3DCard max={8} className="metric-tile h-full">
           <div className="flex items-center justify-between gap-2">
             <span className="label">Experience Points</span>
             <span className="icon-chip"><Zap size={16} strokeWidth={1.8} /></span>
           </div>
-          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">{user?.xp ?? 2480}</p>
+          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink"><CountUp end={user?.xp ?? 2480} /></p>
           <p className="mt-1.5 text-xs font-semibold text-primary">
             +120 XP earned this week
           </p>
-        </div>
+        </Tilt3DCard>
+        </Reveal>
 
         {/* Learning Hours */}
-        <div className="metric-tile">
+        <Reveal variant="flip-3d" delay={180}>
+        <Tilt3DCard max={8} className="metric-tile h-full">
           <div className="flex items-center justify-between gap-2">
             <span className="label">Learning Hours</span>
             <span className="icon-chip"><Clock size={16} strokeWidth={1.8} /></span>
           </div>
-          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">34.5<span className="text-[13px] font-medium text-ink-muted">h</span></p>
+          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink"><CountUp end={34.5} decimals={1} /><span className="text-[13px] font-medium text-ink-muted">h</span></p>
           <p className="mt-1.5 text-xs font-medium text-ink-muted">
             Across 12 completed modules
           </p>
-        </div>
+        </Tilt3DCard>
+        </Reveal>
 
         {/* Role Readiness */}
-        <div className="metric-tile">
+        <Reveal variant="flip-3d" delay={270}>
+        <Tilt3DCard max={8} className="metric-tile h-full">
           <div className="flex items-center justify-between gap-2">
             <span className="label">Role Readiness</span>
             <span className="icon-chip"><TrendingUp size={16} strokeWidth={1.8} /></span>
           </div>
-          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">{percent(data?.readiness)}</p>
+          <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">
+            {data?.readiness == null ? percent(data?.readiness) : <CountUp end={Math.round(data.readiness * 100)} suffix="%" />}
+          </p>
           <p className="mt-1.5 text-xs font-semibold text-good flex items-center gap-1">
             <CheckCircle2 size={12} /> Target: 80%+ required
           </p>
-        </div>
+        </Tilt3DCard>
+        </Reveal>
       </div>
 
       {/* ── 3. AI Learning Insight Banner ────────────────────────── */}
