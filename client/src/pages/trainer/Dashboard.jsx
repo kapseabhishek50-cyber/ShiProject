@@ -21,14 +21,14 @@ export default function TrainerDashboard() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-ink">Trainer & Assessment Portal</h1>
-          <p className="mt-1 text-sm text-ink-2">
+          <h1 className="text-h1 font-bold text-ink">Trainer & Assessment Portal</h1>
+          <p className="mt-0.5 text-[13px] text-ink-2">
             National Statistical Systems Training Academy (NSSTA) — Curriculum authoring, AI-assisted question generation, and learner weakness evaluation.
           </p>
         </div>
         <Link
           to="/trainer/generator"
-          className="btn-primary text-xs flex items-center gap-2 py-2 px-3.5 shadow-sm"
+          className="btn btn-primary !text-xs"
         >
           <Sparkles size={16} />
           <span>Generate Quiz from Material</span>
@@ -39,39 +39,39 @@ export default function TrainerDashboard() {
 
       {/* KPI Tiles */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
+        <div className="metric-tile !p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Training Documents</span>
-            <FileText size={18} className="text-accent" />
+            <span className="label">Training Documents</span>
+            <FileText size={16} className="text-primary" />
           </div>
-          <p className="mt-2 text-3xl font-bold text-ink">{overview.publishedMaterials || materials.length || 6}</p>
+          <p className="tnum mt-1.5 text-[22px] font-bold text-ink">{overview.publishedMaterials || materials.length || 6}</p>
           <p className="mt-1 text-xs text-ink-2">PDF, DOCX & PPTX modules</p>
         </div>
 
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
+        <div className="metric-tile !p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Question Bank Items</span>
-            <Sparkles size={18} className="text-emerald-500" />
+            <span className="label">Question Bank Items</span>
+            <Sparkles size={16} className="text-good" />
           </div>
-          <p className="mt-2 text-3xl font-bold text-ink">{overview.totalQuestions || 25}</p>
+          <p className="tnum mt-1.5 text-[22px] font-bold text-ink">{overview.totalQuestions || 25}</p>
           <p className="mt-1 text-xs text-ink-2">Mechanically validated MCQs</p>
         </div>
 
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
+        <div className="metric-tile !p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Evaluations Conducted</span>
-            <Users size={18} className="text-blue-500" />
+            <span className="label">Evaluations Conducted</span>
+            <Users size={16} className="text-primary" />
           </div>
-          <p className="mt-2 text-3xl font-bold text-ink">{overview.totalEvaluations || 40}</p>
+          <p className="tnum mt-1.5 text-[22px] font-bold text-ink">{overview.totalEvaluations || 40}</p>
           <p className="mt-1 text-xs text-ink-2">Official competency attempts</p>
         </div>
 
-        <div className="rounded-xl border border-hairline bg-surface p-4 shadow-sm">
+        <div className="metric-tile !p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-wider text-ink-muted">Assessment Pass Rate</span>
-            <CheckCircle2 size={18} className="text-indigo-500" />
+            <span className="label">Assessment Pass Rate</span>
+            <CheckCircle2 size={16} className="text-primary" />
           </div>
-          <p className="mt-2 text-3xl font-bold text-ink">{overview.averagePassRate || '74%'}</p>
+          <p className="tnum mt-1.5 text-[22px] font-bold text-ink">{overview.averagePassRate || '74%'}</p>
           <p className="mt-1 text-xs text-ink-2">Passing threshold: 70%</p>
         </div>
       </div>
@@ -95,15 +95,15 @@ export default function TrainerDashboard() {
                 </thead>
                 <tbody className="divide-y divide-hairline text-ink">
                   {weaknesses.map((w, i) => (
-                    <tr key={i} className="hover:bg-surface-2 transition-colors">
+                    <tr key={i} className="hover:bg-plane transition-colors duration-200">
                       <td className="py-2.5 pr-3 font-semibold">{w.competency}</td>
                       <td className="py-2.5 pr-3 uppercase text-[10px] text-ink-muted">{w.category}</td>
                       <td className="py-2.5 pr-3 text-right">
                         <span
-                          className={`inline-block px-2 py-0.5 rounded-full font-bold text-[11px] ${
+                          className={`pill ${
                             w.avgScorePercent < 60
-                              ? 'bg-red-500/10 text-red-600'
-                              : 'bg-amber-500/10 text-amber-600'
+                              ? 'pill-danger'
+                              : 'pill-warning'
                           }`}
                         >
                           {w.avgScorePercent}%
@@ -128,7 +128,7 @@ export default function TrainerDashboard() {
                 {materials.slice(0, 4).map((m) => (
                   <div
                     key={m._id}
-                    className="flex items-center justify-between rounded-xl border border-hairline p-3 hover:bg-surface-2 transition-colors"
+                    className="flex items-center justify-between rounded-button border border-hairline p-3 hover:bg-plane transition-colors duration-200"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-ink-2">
@@ -139,7 +139,7 @@ export default function TrainerDashboard() {
                         <p className="text-[11px] text-ink-muted uppercase">{m.fileType} · {m.textLength?.toLocaleString()} chars</p>
                       </div>
                     </div>
-                    <span className="text-[11px] font-medium text-accent shrink-0">L{m.targetLevel}</span>
+                    <span className="tnum text-[11px] font-bold text-primary shrink-0">L{m.targetLevel}</span>
                   </div>
                 ))}
               </div>
@@ -147,7 +147,7 @@ export default function TrainerDashboard() {
             <div className="pt-3 border-t border-hairline mt-3">
               <Link
                 to="/trainer/generator"
-                className="flex items-center justify-between text-xs font-semibold text-accent hover:underline"
+                className="flex items-center justify-between text-xs font-semibold text-primary hover:underline"
               >
                 <span>Upload a new module (.pdf, .pptx, .docx, .txt)</span>
                 <ArrowRight size={14} />

@@ -64,13 +64,13 @@ export default function Quiz() {
   const pastQuizzes = results.filter((r) => r.passed || r.scorePct);
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-5 max-w-5xl">
       {/* ── Header ─────────────────────────────────────────── */}
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+        <h1 className="text-h1 font-bold tracking-tight text-ink">
           Competency Quizzes
         </h1>
-        <p className="mt-1 max-w-2xl text-sm text-ink-2">
+        <p className="mt-0.5 max-w-2xl text-[13px] text-ink-2">
           A quiz is how a level gets recorded. Clearing one at 70% replaces a self-rating with an
           assessed level and recomputes your path; falling short leaves your record unchanged.
         </p>
@@ -105,11 +105,11 @@ export default function Quiz() {
         {choices.map((item) => {
           const level = Math.min(item.currentLevel + 1, item.requiredLevel);
           return (
-            <Card key={item.competencyId} className="hover:border-primary/30 transition-all">
+            <Card key={item.competencyId} className="card-hover">
               <div className="flex items-start justify-between gap-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-ink">{item.competency?.name}</h2>
+                    <h2 className="text-[15px] font-bold text-ink">{item.competency?.name}</h2>
                     <Badge band={item.band} />
                   </div>
                   <p className="text-xs text-ink-2">
@@ -120,7 +120,7 @@ export default function Quiz() {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <span className="px-2.5 py-1 text-xs font-bold rounded-pill bg-primary/10 text-primary">
+                  <span className="pill pill-primary">
                     Next: Level {level}
                   </span>
                   <span className="text-xs text-ink-muted">{levelLabel(level)}</span>
@@ -139,7 +139,7 @@ export default function Quiz() {
 
                 <button
                   type="button"
-                  className="btn btn-primary text-xs flex items-center gap-2"
+                  className="btn btn-primary !text-xs flex items-center gap-2"
                   disabled={start.loading}
                   onClick={() => start.run({ competency: item.competencyId, targetLevel: level })}
                 >
@@ -168,7 +168,7 @@ export default function Quiz() {
               </thead>
               <tbody className="text-ink">
                 {results.map((entry) => (
-                  <tr key={entry._id} className="border-b border-hairline/50 last:border-0">
+                  <tr key={entry._id} className="border-b border-hairline last:border-0">
                     <td className="py-3 pr-4 font-medium">{entry.competency?.name ?? '—'}</td>
                     <td className="py-3 pr-4">{entry.targetLevel}</td>
                     <td className="py-3 pr-4 font-bold text-primary">{percent(entry.scoreRatio)}</td>

@@ -148,7 +148,7 @@ export default function QuestionBank() {
                       return (
                         <div 
                           key={i}
-                          className={`flex items-start gap-2 p-2 rounded-md text-sm ${
+                          className={`flex items-start gap-2 p-2 rounded-button text-[13px] duration-200 ${
                             isCorrect ? 'bg-surface-2 font-medium text-ink' : 'text-ink-2'
                           }`}
                         >
@@ -164,7 +164,7 @@ export default function QuestionBank() {
                   </div>
 
                   {q.explanation && (
-                    <div className="mt-4 p-3 rounded-md bg-surface border border-hairline text-sm text-ink-2">
+                    <div className="mt-4 p-3 rounded-button bg-plane border border-hairline text-[13px] text-ink-2">
                       <strong className="text-ink text-xs uppercase block mb-1">Explanation</strong>
                       {q.explanation}
                     </div>
@@ -186,7 +186,7 @@ export default function QuestionBank() {
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium border border-hairline hover:bg-surface-2 transition-colors text-[var(--status-critical)]"
+                          className="btn btn-quiet !text-[13px] !text-critical hover:!bg-red-50"
                           onClick={() => handleStatusChange(q._id, 'rejected')}
                           disabled={updateStatus.loading}
                         >
@@ -195,7 +195,7 @@ export default function QuestionBank() {
                         </button>
                         <button
                           type="button"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded text-sm font-medium bg-ink text-surface hover:opacity-90 transition-opacity"
+                          className="btn btn-primary !text-[13px]"
                           onClick={() => handleStatusChange(q._id, 'approved')}
                           disabled={updateStatus.loading}
                         >

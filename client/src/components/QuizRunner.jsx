@@ -40,7 +40,7 @@ export default function QuizRunner({ attempt, onSubmit, submitting, error }) {
       {/* Progress Bar */}
       <div className="h-2 w-full rounded-pill bg-surface-2 overflow-hidden">
         <div
-          className="h-full rounded-pill bg-gradient-accent transition-all duration-300"
+          className="h-full rounded-pill bg-primary transition-all duration-300"
           style={{ width: `${(totalAnswered / questions.length) * 100}%` }}
         />
       </div>
@@ -49,7 +49,7 @@ export default function QuizRunner({ attempt, onSubmit, submitting, error }) {
       <Card>
         <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary/10 text-primary font-bold">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-primary-light text-primary text-xs font-bold border border-primary-border">
               Q
             </span>
             <p className="text-base text-ink leading-relaxed">{question.stem}</p>

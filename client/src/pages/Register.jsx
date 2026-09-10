@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
-import { UserPlus, ArrowRight } from 'lucide-react';
+import { UserPlus, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ErrorNote, Loading, ThemeToggle } from '../components/ui.jsx';
 import { api, endpoints } from '../lib/index.js';
@@ -70,9 +70,9 @@ export default function Register() {
   }
 
   return (
-    <div className="grid min-h-screen font-geist md:grid-cols-2">
-      {/* ── Left panel: Foldcraft video background ── */}
-      <div className="relative hidden overflow-hidden md:flex md:flex-col md:justify-between">
+    <div className="grid min-h-screen md:grid-cols-2">
+      {/* ── Left panel: branded navy overlay over video ── */}
+      <div className="relative hidden overflow-hidden md:flex md:flex-col md:justify-between" style={{ background: 'var(--navy)' }}>
         <video
           autoPlay
           muted
@@ -82,37 +82,38 @@ export default function Register() {
           style={{ objectPosition: '70% center' }}
           src={VIDEO_SRC}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/30" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(6,59,120,0.92) 0%, rgba(5,46,96,0.78) 55%, rgba(5,46,96,0.6) 100%)' }} />
 
         <div className="relative z-10 flex flex-col justify-between h-full p-10">
-          <div className="flex items-center gap-2.5 rounded-xl bg-white/10 backdrop-blur-md px-3.5 py-2 w-fit border border-white/20">
+          <div className="flex items-center gap-2.5 rounded-button bg-white px-3 py-2 w-fit">
             <span
-              className="grid h-7 w-7 place-items-center rounded-md text-xs font-bold text-white shadow-sm"
-              style={{ background: 'var(--series-1)' }}
+              className="grid h-7 w-7 place-items-center rounded-md text-[11px] font-bold text-white"
+              style={{ background: 'var(--navy)' }}
               aria-hidden="true"
             >
               SS
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-semibold text-white">StatSkill AI</p>
-              <p className="text-[11px] text-white/60">MoSPI · NSO · State DES</p>
+              <p className="text-[13px] font-bold" style={{ color: 'var(--navy)' }}>StatSkill AI</p>
+              <p className="text-[10px] font-medium text-ink-muted">MoSPI · NSO · State DES</p>
             </div>
           </div>
 
           <div className="max-w-md">
-            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-white/50">
+            <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-white/60">
+              <ShieldCheck size={13} />
               Join the platform
             </p>
-            <h1 className="text-3xl font-medium leading-[1.15] tracking-tight text-white md:text-4xl">
+            <h1 className="text-[26px] font-bold leading-[1.25] tracking-tight text-white">
               Competency-based upskilling for the official statistical system
             </h1>
-            <p className="mt-4 text-sm leading-relaxed text-white/60">
+            <p className="mt-3 text-[13px] leading-relaxed text-white/70">
               Create an account to track your learning journey, establish your
               baseline competencies, and discover AI-recommended pathways.
             </p>
           </div>
 
-          <p className="text-[11px] text-white/30">
+          <p className="text-[11px] text-white/40">
             Smart India Hackathon Prototype · MoSPI / NSSTA
           </p>
         </div>
@@ -121,150 +122,167 @@ export default function Register() {
       {/* ── Right panel: Registration form ── */}
       <div className="flex flex-col justify-center bg-plane p-6 sm:p-10">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-xl font-semibold tracking-tight text-ink">
-              Create account
-            </h2>
-            <ThemeToggle />
+          {/* Mobile brand */}
+          <div className="md:hidden mb-6 flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-button text-white font-bold text-[13px]" style={{ background: 'var(--navy)' }}>
+              SS
+            </span>
+            <div className="leading-tight">
+              <p className="text-[15px] font-bold text-ink">StatSkill AI</p>
+              <p className="text-[11px] text-ink-muted">MoSPI · NSO · State DES</p>
+            </div>
           </div>
 
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="label">
-                Full name
-              </label>
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                required
-                className="field mt-1"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="label">
-                Official email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="field mt-1"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <div className="card !p-6 animate-enter">
+            <div className="mb-5 flex items-center justify-between">
               <div>
-                <label htmlFor="employeeId" className="label">
-                  Employee ID
+                <h2 className="text-[19px] font-bold tracking-tight text-ink">
+                  Create account
+                </h2>
+                <p className="mt-0.5 text-[13px] text-ink-muted">Join with your official details</p>
+              </div>
+              <ThemeToggle />
+            </div>
+
+            <form onSubmit={submit} className="space-y-3.5">
+              <div>
+                <label htmlFor="name" className="label">
+                  Full name
                 </label>
                 <input
-                  id="employeeId"
+                  id="name"
                   type="text"
+                  autoComplete="name"
                   required
-                  className="field mt-1"
-                  value={form.employeeId}
-                  onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+                  className="field mt-1.5"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
               </div>
+
               <div>
-                <label htmlFor="department" className="label">
-                  Department
+                <label htmlFor="email" className="label">
+                  Official email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="name@mospi.gov.in"
+                  className="field mt-1.5"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label htmlFor="employeeId" className="label">
+                    Employee ID
+                  </label>
+                  <input
+                    id="employeeId"
+                    type="text"
+                    required
+                    className="field mt-1.5"
+                    value={form.employeeId}
+                    onChange={(e) => setForm({ ...form, employeeId: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="department" className="label">
+                    Department
+                  </label>
+                  <select
+                    id="department"
+                    required
+                    className="field mt-1.5"
+                    value={form.department}
+                    onChange={(e) =>
+                      setForm({ ...form, department: e.target.value, jobRole: '' })
+                    }
+                  >
+                    <option value="">Choose...</option>
+                    {(options.data?.departments ?? []).map((dept) => (
+                      <option key={dept._id} value={dept._id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="jobRole" className="label">
+                  Job role
                 </label>
                 <select
-                  id="department"
+                  id="jobRole"
                   required
-                  className="field mt-1"
-                  value={form.department}
-                  onChange={(e) =>
-                    setForm({ ...form, department: e.target.value, jobRole: '' })
-                  }
+                  disabled={!form.department || options.loading}
+                  className="field mt-1.5"
+                  value={form.jobRole}
+                  onChange={(e) => setForm({ ...form, jobRole: e.target.value })}
                 >
-                  <option value="">Choose...</option>
-                  {(options.data?.departments ?? []).map((dept) => (
-                    <option key={dept._id} value={dept._id}>
-                      {dept.name}
+                  <option value="">Choose role...</option>
+                  {roles.map((role) => (
+                    <option key={role._id} value={role._id}>
+                      {role.title}
                     </option>
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="jobRole" className="label">
-                Job role
-              </label>
-              <select
-                id="jobRole"
-                required
-                disabled={!form.department || options.loading}
-                className="field mt-1"
-                value={form.jobRole}
-                onChange={(e) => setForm({ ...form, jobRole: e.target.value })}
-              >
-                <option value="">Choose role...</option>
-                {roles.map((role) => (
-                  <option key={role._id} value={role._id}>
-                    {role.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  className="field mt-1.5"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+              </div>
 
-            <div>
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="field mt-1"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-              />
-            </div>
+              <div>
+                <label htmlFor="confirmPassword" className="label">
+                  Confirm password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  className="field mt-1.5"
+                  value={form.confirmPassword}
+                  onChange={(e) =>
+                    setForm({ ...form, confirmPassword: e.target.value })
+                  }
+                />
+              </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="label">
-                Confirm password
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                className="field mt-1"
-                value={form.confirmPassword}
-                onChange={(e) =>
-                  setForm({ ...form, confirmPassword: e.target.value })
-                }
-              />
-            </div>
+              <ErrorNote error={error ?? options.error} onRetry={options.refetch} />
 
-            <ErrorNote error={error ?? options.error} onRetry={options.refetch} />
+              <button type="submit" className="btn btn-primary w-full gap-2 !py-2.5" disabled={busy}>
+                <UserPlus size={15} aria-hidden="true" />
+                {busy ? 'Creating account…' : 'Create account'}
+              </button>
+            </form>
 
-            <button type="submit" className="btn-primary w-full gap-2" disabled={busy}>
-              <UserPlus size={15} aria-hidden="true" />
-              {busy ? 'Creating account…' : 'Create account'}
-            </button>
-          </form>
-
-          <p className="mt-6 text-center text-xs text-ink-2">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-ink underline underline-offset-2">
-              Sign in
-            </Link>
-          </p>
+            <p className="mt-4 text-center text-xs text-ink-2">
+              Already have an account?{' '}
+              <Link to="/login" className="font-semibold text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, Bot, User } from 'lucide-react';
+import { X, Send, Sparkles, Bot, User } from 'lucide-react';
 import { api, endpoints } from '../lib/index.js';
 
 export default function FloatingChatbot() {
@@ -70,27 +70,27 @@ export default function FloatingChatbot() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-full bg-gradient-to-r from-primary to-accent px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/30 transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+          className="btn btn-primary fixed bottom-5 right-5 z-50 !rounded-pill !px-4 !py-2.5 shadow-card-hover"
           aria-label="Open AI Assistant"
         >
-          <Sparkles size={18} />
+          <Sparkles size={16} />
           <span>Ask StatSkill AI</span>
         </button>
       )}
 
       {/* Chat Drawer */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-full max-w-[440px] rounded-2xl border border-hairline bg-surface shadow-2xl overflow-hidden flex flex-col animate-scale-in">
+        <div className="fixed bottom-5 right-5 z-50 w-[calc(100vw-2.5rem)] max-w-[400px] rounded-card-lg border border-hairline bg-surface shadow-card-hover overflow-hidden flex flex-col animate-scale-in">
           {/* Drawer Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-hairline bg-gradient-to-r from-primary/5 to-accent/5">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-accent text-white shadow-sm">
-                <Bot size={20} />
+          <div className="flex items-center justify-between px-4 py-3 border-b border-hairline bg-surface">
+            <div className="flex items-center gap-2.5">
+              <div className="icon-chip !w-9 !h-9">
+                <Bot size={18} strokeWidth={1.8} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-ink">StatSkill AI</h3>
+                <h3 className="text-[13px] font-bold text-ink">StatSkill AI Assistant</h3>
                 <div className="flex items-center gap-1.5">
-                  <span className="flex h-2 w-2 rounded-full bg-status-good animate-pulse" />
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-good" />
                   <p className="text-[11px] text-ink-2">MoSPI & NSSTA Co-pilot</p>
                 </div>
               </div>
@@ -98,21 +98,21 @@ export default function FloatingChatbot() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-lg p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink transition-colors"
+              className="rounded-button p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink transition-colors duration-200"
               aria-label="Close assistant"
             >
-              <X size={18} />
+              <X size={17} />
             </button>
           </div>
 
           {/* Quick Prompt Chips */}
-          <div className="flex gap-1.5 overflow-x-auto px-4 py-3 border-b border-hairline/50 scrollbar-none">
+          <div className="flex gap-1.5 overflow-x-auto px-3.5 py-2.5 border-b border-hairline">
             {QUICK_PROMPTS.map((q, i) => (
               <button
                 key={i}
                 type="button"
                 onClick={() => handleSend(q)}
-                className="shrink-0 rounded-full border border-hairline bg-surface-2 px-3 py-1.5 text-[11px] text-ink-2 hover:border-primary hover:text-primary hover:bg-primary-light transition-all whitespace-nowrap"
+                className="shrink-0 rounded-pill border border-hairline bg-plane px-2.5 py-1 text-[11px] font-medium text-ink-2 hover:border-primary-border hover:text-primary hover:bg-primary-light transition-all duration-200 whitespace-nowrap"
               >
                 {q}
               </button>
@@ -120,24 +120,23 @@ export default function FloatingChatbot() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[320px]">
+          <div className="flex-1 overflow-y-auto bg-plane p-3.5 space-y-3 max-h-[300px]">
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.role === 'assistant' && (
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
-                    <Bot size={14} />
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary mt-0.5 border border-primary-border">
+                    <Bot size={13} />
                   </div>
                 )}
                 <div
-                  className={`max-w-[82%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  className={`max-w-[82%] rounded-button px-3 py-2 text-[13px] leading-relaxed ${
                     m.role === 'user'
-                      ? 'bg-gradient-accent text-white rounded-br-sm'
-                      : 'bg-surface-2 text-ink border border-hairline rounded-bl-sm'
+                      ? 'bg-primary text-white'
+                      : 'bg-surface text-ink border border-hairline'
                   }`}
-                  style={m.role === 'user' ? { background: 'var(--gradient-accent)' } : {}}
                 >
                   <p className="whitespace-pre-wrap">{m.content}</p>
                   {m.source && (
@@ -147,8 +146,8 @@ export default function FloatingChatbot() {
                   )}
                 </div>
                 {m.role === 'user' && (
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
-                    <User size={14} />
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink-2 mt-0.5 border border-hairline">
+                    <User size={13} />
                   </div>
                 )}
               </div>
@@ -156,11 +155,11 @@ export default function FloatingChatbot() {
 
             {loading && (
               <div className="flex gap-2 items-center text-xs text-ink-muted">
-                <Bot size={14} className="animate-spin text-primary" />
+                <Bot size={13} className="text-primary" />
                 <span className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary opacity-60" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary opacity-60" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary opacity-60" style={{ animationDelay: '300ms' }} />
                   <span className="ml-1">Analyzing your statistical learning path...</span>
                 </span>
               </div>
@@ -174,7 +173,7 @@ export default function FloatingChatbot() {
               e.preventDefault();
               handleSend();
             }}
-            className="border-t border-hairline bg-surface p-3 flex gap-2"
+            className="border-t border-hairline bg-surface p-2.5 flex gap-2"
           >
             <input
               ref={inputRef}
@@ -182,13 +181,14 @@ export default function FloatingChatbot() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask about official statistics or your path..."
-              className="field text-xs flex-1"
+              className="field !text-[13px] flex-1"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={!input.trim() || loading}
-              className="btn btn-primary text-xs px-3 py-1.5 flex items-center justify-center"
+              className="btn btn-primary !px-3 flex items-center justify-center"
+              aria-label="Send message"
             >
               <Send size={14} />
             </button>

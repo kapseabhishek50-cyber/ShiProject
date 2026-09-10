@@ -112,18 +112,18 @@ export default function Discussions() {
   if (groupsApi.loading) return <Loading label="Loading statistical discussion groups" />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* ── Header ─────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-ink">
+          <h1 className="text-h1 font-bold tracking-tight text-ink">
             Statistical Learning Discussions
           </h1>
-          <p className="mt-1 text-sm text-ink-2">
+          <p className="mt-0.5 text-[13px] text-ink-2">
             Collaborative peer capacity building across official statistical domains. Meaningful contributions award <span className="font-semibold text-primary">+20 XP</span> towards your streak.
           </p>
         </div>
-        <Button variant="accent" size="sm" onClick={() => setShowAiModal(true)}>
+        <Button variant="primary" size="sm" onClick={() => setShowAiModal(true)}>
           <Sparkles size={14} />
           Ask AI Co-pilot
         </Button>
@@ -131,10 +131,10 @@ export default function Discussions() {
 
       <ErrorNote error={groupsApi.error} />
 
-      <div className="grid gap-5 lg:grid-cols-12">
+      <div className="grid gap-4 lg:grid-cols-12">
         {/* ── Groups Sidebar ──────────────────────────── */}
         <div className="space-y-2 lg:col-span-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted px-1">
+          <h3 className="label px-1">
             Learning Groups
           </h3>
           <div className="space-y-1.5">
@@ -146,22 +146,22 @@ export default function Discussions() {
                   key={group._id}
                   type="button"
                   onClick={() => setActiveGroup(group)}
-                  className={`w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 ${
+                  className={`w-full text-left p-3 rounded-button border transition-all duration-200 flex items-start gap-3 ${
                     isActive
-                      ? 'border-primary/40 bg-primary-light shadow-sm'
-                      : 'border-hairline bg-surface hover:bg-surface-2 hover:border-primary/20'
+                      ? 'border-primary bg-primary-light shadow-xs'
+                      : 'border-hairline bg-surface hover:bg-plane hover:border-primary-border'
                   }`}
                 >
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                      isActive ? 'bg-gradient-accent text-white' : 'bg-surface-2 text-ink-2'
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-button ${
+                      isActive ? 'bg-primary text-white' : 'bg-surface-2 text-ink-2'
                     }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={17} strokeWidth={1.8} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <h4 className="text-sm font-semibold text-ink truncate">{group.title}</h4>
+                      <h4 className="text-[13px] font-semibold text-ink truncate">{group.title}</h4>
                       <span className="flex items-center gap-1 text-[11px] text-ink-muted shrink-0">
                         <Users size={12} /> {group.memberCount || 30}
                       </span>
@@ -175,12 +175,12 @@ export default function Discussions() {
         </div>
 
         {/* ── Conversation Thread ─────────────────────── */}
-        <div className="flex flex-col rounded-2xl border border-hairline bg-surface shadow-card lg:col-span-8 overflow-hidden">
+        <div className="flex flex-col rounded-card-lg border border-hairline bg-surface shadow-card lg:col-span-8 overflow-hidden">
           {/* Group Header */}
           {activeGroup && (
-            <div className="flex items-center justify-between border-b border-hairline bg-surface-2/50 px-5 py-3.5 backdrop-blur-sm">
+            <div className="flex items-center justify-between border-b border-hairline bg-plane px-5 py-3">
               <div>
-                <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+                <h3 className="text-[13px] font-bold text-ink flex items-center gap-2">
                   <span>{activeGroup.title}</span>
                   <Badge band="accent">{activeGroup.category}</Badge>
                 </h3>
@@ -190,7 +190,7 @@ export default function Discussions() {
           )}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4 max-h-[520px]">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 max-h-[520px]">
             {loadingMessages ? (
               <Loading label="Loading discussion messages" />
             ) : messages.length === 0 ? (
@@ -199,12 +199,12 @@ export default function Discussions() {
               messages.map((m) => (
                 <div
                   key={m._id}
-                  className={`rounded-xl border p-4 transition-all ${
+                  className={`rounded-button border p-4 transition-all duration-200 ${
                     m.isPinned
-                      ? 'border-amber-500/30 bg-amber-500/5'
+                      ? 'border-warning bg-plane'
                       : m.isAiGenerated
-                      ? 'border-accent/20 bg-accent/5 card-ai'
-                      : 'border-hairline bg-surface-2/50'
+                      ? 'border-primary-border bg-primary-light'
+                      : 'border-hairline bg-plane'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -212,9 +212,9 @@ export default function Discussions() {
                       <div
                         className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                           m.isAiGenerated
-                            ? 'bg-gradient-accent text-white'
+                            ? 'bg-primary text-white'
                             : m.authorRole === 'trainer'
-                            ? 'bg-amber-500 text-white'
+                            ? 'bg-warning text-white'
                             : 'bg-surface-2 text-ink'
                         }`}
                       >
@@ -222,11 +222,11 @@ export default function Discussions() {
                       </div>
                       <span className="text-xs font-semibold text-ink">{m.authorName}</span>
                       {m.isAiGenerated ? (
-                        <span className="rounded-md bg-gradient-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+                        <span className="pill pill-primary !text-[10px]">
                           AI Co-pilot
                         </span>
                       ) : m.authorRole === 'trainer' ? (
-                        <span className="rounded-md bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
+                        <span className="pill pill-warning !text-[10px]">
                           NSSTA Trainer
                         </span>
                       ) : null}
@@ -234,7 +234,7 @@ export default function Discussions() {
 
                     <div className="flex items-center gap-2 text-[11px] text-ink-muted">
                       {m.isPinned && (
-                        <span className="flex items-center gap-1 text-amber-600 font-medium">
+                        <span className="flex items-center gap-1 text-warning font-medium">
                           <Pin size={12} /> Pinned
                         </span>
                       )}
@@ -246,15 +246,15 @@ export default function Discussions() {
                     {m.content}
                   </p>
 
-                  <div className="mt-3 flex items-center justify-between border-t border-hairline/50 pt-2 text-[11px] text-ink-muted">
+                  <div className="mt-3 flex items-center justify-between border-t border-hairline pt-2 text-[11px] text-ink-muted">
                     <button
                       type="button"
                       onClick={() => setReplyTo(m)}
-                      className="hover:text-ink transition-colors flex items-center gap-1"
+                      className="hover:text-primary transition-colors duration-200 flex items-center gap-1"
                     >
                       <CornerDownRight size={12} /> Reply
                     </button>
-                    {m.helpfulCount > 0 && <span>👍 {m.helpfulCount} helpful</span>}
+                    {m.helpfulCount > 0 && <span>{m.helpfulCount} helpful</span>}
                   </div>
                 </div>
               ))
@@ -271,7 +271,7 @@ export default function Discussions() {
               <button
                 type="button"
                 onClick={() => setReplyTo(null)}
-                className="text-ink-muted hover:text-ink transition-colors"
+                className="text-ink-muted hover:text-ink transition-colors duration-200"
               >
                 <X size={14} />
               </button>
@@ -285,7 +285,7 @@ export default function Discussions() {
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
               placeholder={`Contribute to ${activeGroup?.title || 'discussion'}... (+20 XP)`}
-              className="field text-xs flex-1"
+              className="field !text-xs flex-1"
             />
             <Button type="submit" variant="primary" size="sm" disabled={!newText.trim()}>
               <Send size={14} />
@@ -297,18 +297,18 @@ export default function Discussions() {
 
       {/* ── Ask AI Modal ─────────────────────────────── */}
       {showAiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-hairline bg-surface p-6 shadow-2xl space-y-5 animate-scale-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-card-lg border border-hairline bg-surface p-5 shadow-card-hover space-y-4 animate-scale-in">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-ink flex items-center gap-2">
-                <Sparkles size={16} className="text-accent" />
+              <h3 className="text-[13px] font-bold text-ink flex items-center gap-2">
+                <Sparkles size={15} className="text-primary" />
                 Ask AI Co-pilot
                 <span className="text-ink-2 font-normal">( {activeGroup?.title} )</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setShowAiModal(false)}
-                className="rounded-lg p-1 text-ink-muted hover:bg-surface-2 hover:text-ink transition-colors"
+                className="rounded-button p-1 text-ink-muted hover:bg-surface-2 hover:text-ink transition-colors duration-200"
               >
                 <X size={16} />
               </button>
@@ -321,14 +321,14 @@ export default function Discussions() {
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               placeholder="e.g. Explain how to handle outlier weights in CPI revisions under NQAF guidelines..."
-              className="field text-xs w-full"
+              className="field !text-xs w-full"
               disabled={aiLoading}
             />
             <div className="flex justify-end gap-2">
               <Button variant="quiet" onClick={() => setShowAiModal(false)} disabled={aiLoading}>
                 Cancel
               </Button>
-              <Button variant="accent" onClick={handleAskAi} disabled={!aiPrompt.trim() || aiLoading}>
+              <Button variant="primary" onClick={handleAskAi} disabled={!aiPrompt.trim() || aiLoading}>
                 <Sparkles size={14} />
                 {aiLoading ? 'Generating...' : 'Post AI Response'}
               </Button>

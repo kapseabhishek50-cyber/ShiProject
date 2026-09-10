@@ -1,20 +1,16 @@
 import { useState } from 'react';
 import {
-  ArrowRight,
   BookOpen,
-  CheckCircle2,
   ExternalLink,
   GraduationCap,
   Sparkles,
-  ChevronRight,
-  Lock,
-  Play
+  CheckCircle2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CompetencyMeter from '../../components/CompetencyMeter.jsx';
 import { Badge, Card, Empty, ErrorNote, Loading } from '../../components/ui.jsx';
 import { useApi } from '../../hooks/useApi.js';
-import { api, endpoints, levelLabel } from '../../lib/index.js';
+import { api, endpoints } from '../../lib/index.js';
 
 export default function LearningPath() {
   const path = useApi(endpoints.recommendations);
@@ -39,14 +35,14 @@ export default function LearningPath() {
   }
 
   return (
-    <div className="space-y-8 max-w-5xl">
-      {/* ── Page Header ────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-5 max-w-5xl">
+      {/* ── Page Header ────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+          <h1 className="text-h1 font-bold tracking-tight text-ink">
             Personalized Learning Path
           </h1>
-          <p className="mt-1 text-sm text-ink-2">
+          <p className="mt-0.5 text-[13px] text-ink-2">
             AI-sequenced curriculum based on your largest priority skill gaps.
           </p>
         </div>
@@ -54,30 +50,32 @@ export default function LearningPath() {
         <button
           onClick={handleRecompute}
           disabled={recomputing}
-          className="btn btn-accent text-xs flex items-center gap-2 self-start sm:self-auto shadow-glow"
+          className="btn btn-primary !text-xs flex items-center gap-2 self-start sm:self-auto"
         >
-          <Sparkles size={15} />
+          <Sparkles size={14} />
           {recomputing ? 'Recalculating...' : 'Recompute with AI'}
         </button>
       </div>
 
-      {/* ── AI Narrative Explanation Card ──────────────────────────── */}
+      {/* ── AI Narrative Explanation Card ──────────────────────── */}
       {data?.narrative && (
-        <div className="card-ai p-6 space-y-3">
+        <div className="card-ai p-5 space-y-2.5">
           <div className="flex items-center gap-2">
-            <Sparkles size={18} className="text-accent" />
-            <h2 className="text-sm font-bold tracking-wider text-ai-gradient uppercase">
+            <span className="icon-chip !w-7 !h-7">
+              <Sparkles size={14} strokeWidth={1.8} />
+            </span>
+            <h2 className="text-xs font-bold tracking-wider text-primary uppercase">
               Curriculum Sequence Strategy
             </h2>
           </div>
-          <p className="text-sm font-medium text-ink leading-relaxed">
+          <p className="text-[13px] font-medium text-ink leading-relaxed">
             {data.narrative.summary}
           </p>
           {data.narrative.factors?.length > 0 && (
-            <div className="pt-2 flex flex-wrap gap-2">
+            <div className="pt-1.5 flex flex-wrap gap-2">
               {data.narrative.factors.map((f, i) => (
                 <span key={i} className="pill pill-neutral text-[11px]">
-                  ✓ {f}
+                  <CheckCircle2 size={11} className="text-good" /> {f}
                 </span>
               ))}
             </div>
@@ -85,34 +83,34 @@ export default function LearningPath() {
         </div>
       )}
 
-      {/* ── Visual Roadmap Timeline ─────────────────────────────────── */}
-      <div className="space-y-6">
-        <h2 className="text-xl font-bold text-ink">Curriculum Sequence</h2>
+      {/* ── Visual Roadmap Timeline ─────────────────────────────── */}
+      <div className="space-y-3.5">
+        <h2 className="text-h2 font-bold text-ink">Curriculum Sequence</h2>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {items.map((item, index) => {
             const isFirst = index === 0;
             return (
               <div
                 key={item.competencyId}
-                className={`card p-6 transition-all relative overflow-hidden ${
-                  isFirst ? 'border-primary shadow-card-hover ring-2 ring-primary/10' : ''
+                className={`card card-hover !p-5 transition-all duration-200 relative overflow-hidden ${
+                  isFirst ? 'border-primary' : ''
                 }`}
               >
                 {isFirst && (
-                  <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
+                  <div className="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-bl-button uppercase tracking-wider">
                     Next Focus Step
                   </div>
                 )}
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   {/* Step Info */}
-                  <div className="flex items-start gap-4 flex-1">
+                  <div className="flex items-start gap-3.5 flex-1">
                     <span
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl font-bold text-sm ${
+                      className={`tnum grid h-9 w-9 shrink-0 place-items-center rounded-button font-bold text-[13px] ${
                         isFirst
-                          ? 'bg-gradient-accent text-white shadow-glow'
-                          : 'bg-surface-2 text-ink-muted'
+                          ? 'bg-primary text-white'
+                          : 'bg-plane border border-hairline text-ink-2'
                       }`}
                     >
                       0{index + 1}
@@ -120,7 +118,7 @@ export default function LearningPath() {
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-ink">
+                        <h3 className="text-[15px] font-bold text-ink">
                           {item.competency?.name}
                         </h3>
                         <Badge band={item.band} />
@@ -144,9 +142,9 @@ export default function LearningPath() {
 
                     <Link
                       to={`/quiz/${item.competencyId}`}
-                      className="btn btn-primary text-xs shrink-0 py-2.5 px-4"
+                      className="btn btn-primary !text-xs shrink-0"
                     >
-                      <GraduationCap size={15} />
+                      <GraduationCap size={14} />
                       Take Quiz
                     </Link>
                   </div>
@@ -154,21 +152,21 @@ export default function LearningPath() {
 
                 {/* Associated Courses List */}
                 {item.courses?.length > 0 && (
-                  <div className="mt-6 pt-4 border-t border-hairline/60">
-                    <p className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-3">
+                  <div className="mt-4 pt-3.5 border-t border-hairline">
+                    <p className="label mb-2.5">
                       Recommended Course Materials
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {item.courses.map((c, cIdx) => (
                         <a
                           key={cIdx}
                           href={c.courseDetail?.externalUrl || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between p-3 rounded-button bg-surface-2 hover:bg-surface-3 transition-colors text-xs font-medium text-ink"
+                          className="flex items-center justify-between p-2.5 rounded-button bg-plane border border-hairline hover:border-primary-border hover:bg-primary-light transition-all duration-200 text-xs font-medium text-ink"
                         >
                           <span className="flex items-center gap-2 truncate">
-                            <BookOpen size={14} className="text-primary shrink-0" />
+                            <BookOpen size={13} className="text-primary shrink-0" />
                             <span className="truncate">{c.courseDetail?.title}</span>
                           </span>
                           <ExternalLink size={12} className="text-ink-muted shrink-0 ml-2" />
@@ -182,10 +180,12 @@ export default function LearningPath() {
           })}
 
           {items.length === 0 && (
-            <Empty
-              title="No Learning Path Found"
-              description="Complete your initial assessment so AI can chart your personal upskilling roadmap."
-            />
+            <Card>
+              <Empty
+                title="No Learning Path Found"
+                description="Complete your initial assessment so AI can chart your personal upskilling roadmap."
+              />
+            </Card>
           )}
         </div>
       </div>

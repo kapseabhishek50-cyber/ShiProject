@@ -14,11 +14,11 @@ export default function CompetencyMeter({
   return (
     <div className="space-y-1.5 py-1">
       <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-ink">{name}</span>
-          {category && <span className="text-[10px] text-ink-muted px-1.5 py-0.5 rounded bg-surface-2">{category}</span>}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-semibold text-ink truncate">{name}</span>
+          {category && <span className="text-[10px] font-medium text-ink-muted px-1.5 py-0.5 rounded border border-hairline bg-plane shrink-0">{category}</span>}
         </div>
-        <div className="flex items-center gap-1.5 font-medium text-ink-2">
+        <div className="flex items-center gap-1.5 font-medium text-ink-2 shrink-0">
           <span className="text-primary font-bold">{levelLabel(currentLevel)}</span>
           {requiredLevel !== null && (
             <span className="text-ink-muted">/ Req: {levelLabel(requiredLevel)}</span>
@@ -27,17 +27,17 @@ export default function CompetencyMeter({
       </div>
 
       {/* Progress Track */}
-      <div className="relative h-2 w-full rounded-pill bg-surface-2 overflow-hidden">
-        {/* Fill bar */}
+      <div className="relative h-1.5 w-full rounded-pill bg-surface-2 overflow-hidden">
+        {/* Fill bar — solid professional blue */}
         <div
-          className="h-full rounded-pill bg-gradient-accent transition-all duration-500 ease-out"
+          className="h-full rounded-pill bg-primary transition-all duration-200 ease-out"
           style={{ width: `${currentPct}%` }}
         />
 
         {/* Required Level Marker */}
         {requiredPct !== null && (
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-critical z-10"
+            className="absolute top-0 bottom-0 w-0.5 bg-navy z-10"
             style={{ left: `${requiredPct}%` }}
             title={`Required Level: ${levelLabel(requiredLevel)}`}
           />

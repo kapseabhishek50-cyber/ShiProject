@@ -93,7 +93,7 @@ export default function Courses() {
         </div>
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-md bg-ink px-3 py-1.5 text-sm font-medium text-surface transition-opacity hover:opacity-90"
+          className="btn btn-primary"
           onClick={() => {
             setCurrentCourse(null);
             setMappings([]);
@@ -238,13 +238,13 @@ export default function Courses() {
               <button
                 type="submit"
                 disabled={saveCourse.loading}
-                className="rounded-md bg-ink px-4 py-2 text-sm font-medium text-surface disabled:opacity-50"
+                className="btn btn-primary"
               >
                 {saveCourse.loading ? 'Saving...' : 'Save course'}
               </button>
               <button
                 type="button"
-                className="rounded-md px-4 py-2 text-sm font-medium text-ink-2 hover:bg-surface-2"
+                className="btn btn-quiet"
                 onClick={() => {
                   setIsEditing(false);
                   setCurrentCourse(null);
@@ -262,7 +262,7 @@ export default function Courses() {
             <Loading label="Loading catalog" />
           ) : courses.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-ink-2">
+              <table className="table-enterprise w-full text-left text-[13px] text-ink-2">
                 <thead className="border-b border-hairline text-xs uppercase text-ink-muted">
                   <tr>
                     <th className="pb-3 pr-4 font-medium">Code</th>
@@ -290,11 +290,11 @@ export default function Courses() {
                         <td className="py-3 pr-4">{course.competencies?.length || 0} mapped</td>
                         <td className="py-3 pr-4">
                           {isActive ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--status-good)] px-2 py-0.5 text-xs text-[var(--status-good)]">
+                            <span className="pill pill-success">
                               Active
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-hairline px-2 py-0.5 text-xs text-ink-muted">
+                            <span className="pill pill-neutral">
                               Inactive
                             </span>
                           )}
@@ -302,7 +302,7 @@ export default function Courses() {
                         <td className="py-3 flex justify-end gap-2">
                           <button
                             type="button"
-                            className="p-1 text-ink-muted hover:text-ink transition-colors"
+                            className="btn btn-ghost !p-1.5"
                             onClick={() => handleEdit(course)}
                             title="Edit"
                           >
@@ -310,7 +310,7 @@ export default function Courses() {
                           </button>
                           <button
                             type="button"
-                            className="p-1 text-ink-muted hover:text-ink transition-colors"
+                            className="btn btn-ghost !p-1.5"
                             onClick={() => handleToggleStatus(course)}
                             title={isActive ? 'Deactivate' : 'Reactivate'}
                           >
