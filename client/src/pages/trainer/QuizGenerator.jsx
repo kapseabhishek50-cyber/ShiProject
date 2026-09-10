@@ -78,12 +78,12 @@ export default function QuizGenerator() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+          <span className="icon-chip">
             <Sparkles size={20} />
           </span>
-          <h1 className="text-xl font-semibold text-ink">AI Document-to-Quiz Generator</h1>
+          <h1 className="text-h1 font-bold text-ink">AI Document-to-Quiz Generator</h1>
         </div>
-        <p className="mt-1 text-sm text-ink-2">
+        <p className="mt-0.5 text-[13px] text-ink-2">
           Upload official MoSPI/NSSTA training materials, survey handbooks, or methodology circulars (PDF, DOCX, PPTX, TXT) to generate mechanically validated objective assessments.
         </p>
       </div>
@@ -96,11 +96,11 @@ export default function QuizGenerator() {
         <div className="lg:col-span-5 space-y-4">
           <Card title="Upload Learning Material">
             {/* File Dropzone */}
-            <div className="mt-2 flex justify-center rounded-xl border-2 border-dashed border-hairline px-6 pt-5 pb-6 text-center hover:border-accent transition-colors">
+            <div className="mt-2 flex justify-center rounded-card border-2 border-dashed border-hairline px-6 pt-5 pb-6 text-center hover:border-primary transition-colors duration-200">
               <div className="space-y-2">
-                <UploadCloud size={32} className="mx-auto text-ink-muted" />
+                <UploadCloud size={28} strokeWidth={1.5} className="mx-auto text-ink-muted" />
                 <div className="flex text-xs text-ink-2 justify-center">
-                  <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-accent hover:underline">
+                  <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-primary hover:underline">
                     <span>{file ? file.name : 'Upload training material'}</span>
                     <input
                       id="file-upload"
@@ -212,7 +212,7 @@ export default function QuizGenerator() {
                   disabled={publishMutation.loading || published}
                   className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold shadow-xs transition-all ${
                     published
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-good text-white'
                       : 'btn-primary'
                   }`}
                 >
@@ -238,8 +238,8 @@ export default function QuizGenerator() {
             ) : (
               <div className="space-y-4 pt-1">
                 {uploadResult && (
-                  <div className="flex items-center gap-2 rounded-lg bg-surface-2 p-3 text-xs text-ink-2">
-                    <BookOpen size={14} className="text-accent shrink-0" />
+                  <div className="flex items-center gap-2 rounded-button bg-plane border border-hairline p-3 text-xs text-ink-2">
+                    <BookOpen size={14} className="text-primary shrink-0" />
                     <span>
                       Synthesized from <strong>{uploadResult.filename}</strong> ({uploadResult.chars.toLocaleString()} chars parsed).
                     </span>
@@ -247,10 +247,10 @@ export default function QuizGenerator() {
                 )}
 
                 {generatedQuestions.map((q, idx) => (
-                  <div key={idx} className="rounded-xl border border-hairline bg-surface p-4 space-y-3">
+                  <div key={idx} className="rounded-card border border-hairline bg-surface p-4 space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-semibold text-accent">Question {idx + 1}</span>
-                      <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                      <span className="text-xs font-semibold text-primary">Question {idx + 1}</span>
+                      <span className="pill pill-success !text-[10px]">
                         <CheckCircle2 size={10} /> Mechanically Validated
                       </span>
                     </div>
@@ -263,7 +263,7 @@ export default function QuizGenerator() {
                           key={optIdx}
                           className={`flex items-start gap-2 rounded-lg p-2 text-xs transition-colors ${
                             opt.isCorrect
-                              ? 'border border-emerald-500/40 bg-emerald-500/5 font-semibold text-emerald-700 dark:text-emerald-400'
+                              ? 'border border-good bg-plane font-semibold text-ink'
                               : 'border border-hairline bg-surface-2 text-ink-2'
                           }`}
                         >
@@ -271,7 +271,7 @@ export default function QuizGenerator() {
                             {String.fromCharCode(65 + optIdx)}.
                           </span>
                           <span>{opt.text}</span>
-                          {opt.isCorrect && <Check size={14} className="ml-auto text-emerald-600 shrink-0" />}
+                          {opt.isCorrect && <Check size={14} className="ml-auto text-good shrink-0" />}
                         </div>
                       ))}
                     </div>

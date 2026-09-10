@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { LogIn, ArrowRight } from 'lucide-react';
+import { LogIn, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { ErrorNote, Loading, ThemeToggle } from '../components/ui.jsx';
 
@@ -74,9 +74,9 @@ export default function Login() {
   }
 
   return (
-    <div className="grid min-h-screen font-geist md:grid-cols-2">
-      {/* ── Left panel: Foldcraft video background ── */}
-      <div className="relative hidden overflow-hidden md:flex md:flex-col md:justify-between">
+    <div className="grid min-h-screen md:grid-cols-2">
+      {/* ── Left panel: branded navy overlay over video ── */}
+      <div className="relative hidden overflow-hidden md:flex md:flex-col md:justify-between" style={{ background: 'var(--navy)' }}>
         {/* Video */}
         <video
           autoPlay
@@ -88,61 +88,62 @@ export default function Login() {
           src={VIDEO_SRC}
         />
 
-        {/* Dark gradient overlay for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/30" />
+        {/* Navy overlay for legibility + brand */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(6,59,120,0.92) 0%, rgba(5,46,96,0.78) 55%, rgba(5,46,96,0.6) 100%)' }} />
 
         {/* Content on top of video */}
         <div className="relative z-10 flex flex-col justify-between h-full p-10">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2.5 rounded-xl bg-white/10 backdrop-blur-md px-3.5 py-2 border border-white/20">
+            <div className="flex items-center gap-2.5 rounded-button bg-white px-3 py-2">
               <span
-                className="grid h-7 w-7 place-items-center rounded-md text-xs font-bold text-white"
-                style={{ background: 'var(--series-1)' }}
+                className="grid h-7 w-7 place-items-center rounded-md text-[11px] font-bold text-white"
+                style={{ background: 'var(--navy)' }}
                 aria-hidden="true"
               >
                 SS
               </span>
               <div className="leading-tight">
-                <p className="text-sm font-semibold text-white">StatSkill AI</p>
-                <p className="text-[11px] text-white/60">MoSPI · NSO · State DES</p>
+                <p className="text-[13px] font-bold" style={{ color: 'var(--navy)' }}>StatSkill AI</p>
+                <p className="text-[10px] font-medium text-ink-muted">MoSPI · NSO · State DES</p>
               </div>
             </div>
           </div>
 
           {/* Hero copy */}
           <div className="max-w-md">
-            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-white/50">
+            <p className="mb-2.5 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-white/60">
+              <ShieldCheck size={13} />
               AI Competency Intelligence
             </p>
-            <h1 className="text-3xl font-medium leading-[1.15] tracking-tight text-white md:text-4xl">
+            <h1 className="text-[26px] font-bold leading-[1.25] tracking-tight text-white">
               Competency-based upskilling for the official statistical system
             </h1>
-            <p className="mt-4 text-sm leading-relaxed text-white/60">
-              Every officer's path is computed from the gap between the level
+            <p className="mt-3 text-[13px] leading-relaxed text-white/70">
+              Every officer&apos;s path is computed from the gap between the level
               their role requires and the level their record shows — on a fixed
               0–5 scale, with the arithmetic visible rather than asserted.
             </p>
 
-            <div className="mt-8 space-y-3">
+            <div className="mt-7 space-y-2.5">
               {[
                 'Profile & self-assessment establish current levels',
                 'Role requirements define the target',
                 'Gap × importance → priority score',
                 'Courses matched to gap; quiz records new level',
               ].map((step, i) => (
-                <div key={step} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold text-white/80">
+                <div key={step} className="flex items-start gap-2.5">
+                  <span className="tnum mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-[11px] font-bold text-white">
                     {i + 1}
                   </span>
-                  <span className="text-sm text-white/70">{step}</span>
+                  <span className="text-[13px] text-white/75">{step}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Footer note */}
-          <p className="text-[11px] text-white/30">
+          <p className="text-[11px] text-white/40">
             Smart India Hackathon Prototype · MoSPI / NSSTA
           </p>
         </div>
@@ -151,71 +152,86 @@ export default function Login() {
       {/* ── Right panel: Sign-in form ── */}
       <div className="flex flex-col justify-center bg-plane p-6 sm:p-10">
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight text-ink">
-                Welcome back
-              </h2>
-              <p className="mt-0.5 text-sm text-ink-muted">Sign in to continue</p>
+          {/* Mobile brand */}
+          <div className="md:hidden mb-6 flex items-center gap-2.5">
+            <span className="grid h-9 w-9 place-items-center rounded-button text-white font-bold text-[13px]" style={{ background: 'var(--navy)' }}>
+              SS
+            </span>
+            <div className="leading-tight">
+              <p className="text-[15px] font-bold text-ink">StatSkill AI</p>
+              <p className="text-[11px] text-ink-muted">MoSPI · NSO · State DES</p>
             </div>
-            <ThemeToggle />
           </div>
 
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="label">
-                Official email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="username"
-                required
-                className="field mt-1"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-              />
+          <div className="card !p-6 animate-enter">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-[19px] font-bold tracking-tight text-ink">
+                  Welcome back
+                </h2>
+                <p className="mt-0.5 text-[13px] text-ink-muted">Sign in to continue</p>
+              </div>
+              <ThemeToggle />
             </div>
 
-            <div>
-              <label htmlFor="password" className="label">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="field mt-1"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-              />
-            </div>
+            <form onSubmit={submit} className="space-y-3.5">
+              <div>
+                <label htmlFor="email" className="label">
+                  Official email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="username"
+                  required
+                  placeholder="name@mospi.gov.in"
+                  className="field mt-1.5"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
 
-            <ErrorNote error={error} />
+              <div>
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  placeholder="Enter your password"
+                  className="field mt-1.5"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+              </div>
 
-            <button
-              type="submit"
-              className="btn-primary w-full gap-2"
-              disabled={busy}
-            >
-              <LogIn size={15} aria-hidden="true" />
-              {busy ? 'Signing in…' : 'Sign in'}
-            </button>
-          </form>
+              <ErrorNote error={error} />
 
-          <p className="mt-4 text-center text-xs text-ink-2">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-ink underline underline-offset-2">
-              Register
-            </Link>
-          </p>
+              <button
+                type="submit"
+                className="btn btn-primary w-full gap-2 !py-2.5"
+                disabled={busy}
+              >
+                <LogIn size={15} aria-hidden="true" />
+                {busy ? 'Signing in…' : 'Sign in'}
+              </button>
+            </form>
+
+            <p className="mt-4 text-center text-xs text-ink-2">
+              Don&apos;t have an account?{' '}
+              <Link to="/register" className="font-semibold text-primary hover:underline">
+                Register
+              </Link>
+            </p>
+          </div>
 
           {/* Demo personas */}
-          <div className="mt-6 rounded-card border border-hairline bg-surface p-4">
+          <div className="card mt-4 !p-4 animate-enter-1">
             <div className="mb-3 flex items-center justify-between">
               <p className="label">Evaluation Demo Personas</p>
-              <span className="flex items-center gap-1 text-[10px] text-ink-muted">
+              <span className="flex items-center gap-1 text-[10px] font-medium text-ink-muted">
                 <ArrowRight size={10} />
                 1-click sign-in
               </span>
@@ -224,23 +240,23 @@ export default function Login() {
               {PERSONAS.map((persona) => (
                 <li
                   key={persona.email}
-                  className="rounded-md border border-hairline/60 bg-surface-2/40 p-2.5 transition-all hover:border-hairline hover:bg-surface-2"
+                  className="rounded-button border border-hairline bg-plane p-2.5 transition-all duration-200 hover:border-primary-border hover:bg-primary-light"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <p className="text-xs font-semibold text-ink">{persona.label}</p>
-                        <span className="rounded-full bg-surface-2 px-1.5 py-px text-[10px] font-medium text-ink-muted">
+                        <span className="pill pill-neutral !text-[10px] !py-0">
                           {persona.tag}
                         </span>
                       </div>
-                      <p className="text-[10px] font-medium text-series-1">{persona.role}</p>
+                      <p className="tnum text-[10px] font-semibold text-primary">{persona.role}</p>
                       <p className="mt-0.5 truncate text-[11px] text-ink-muted">{persona.detail}</p>
                     </div>
                     <button
                       type="button"
                       disabled={busy}
-                      className="shrink-0 rounded bg-ink px-2.5 py-1 text-[11px] font-medium text-plane transition-opacity hover:opacity-80 disabled:opacity-50"
+                      className="btn btn-primary !text-[11px] !px-2.5 !py-1 shrink-0"
                       onClick={() =>
                         handleLoginWithCredentials(persona.email, persona.password)
                       }

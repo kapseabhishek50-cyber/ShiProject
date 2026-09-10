@@ -3,18 +3,20 @@ import { useEffect, useState } from 'react';
 import { bandMeta } from '../lib/format.js';
 
 /**
- * Premium UI Component Library - StatSkill AI Design System
+ * Enterprise UI Component Library — StatSkill AI Design System
+ * Minimal, professional, government-grade. Compact sizing, thin
+ * light-blue borders, subtle shadows.
  */
 
 export function Card({ title, subtitle, action, children, className = '', variant = 'default' }) {
-  const baseClass = variant === 'glass' ? 'card-glass' : variant === 'ai' ? 'card-ai' : 'card';
+  const baseClass = variant === 'glass' ? 'card' : variant === 'ai' ? 'card-ai' : 'card';
   return (
     <section className={`${baseClass} ${className}`}>
       {(title || action) && (
-        <header className="mb-6 flex items-start justify-between gap-4">
+        <header className="mb-4 flex items-start justify-between gap-4">
           <div>
             {title && <h2 className="text-card-title font-semibold text-ink">{title}</h2>}
-            {subtitle && <p className="mt-1 text-sm text-ink-2">{subtitle}</p>}
+            {subtitle && <p className="mt-0.5 text-[13px] text-ink-2">{subtitle}</p>}
           </div>
           {action}
         </header>
@@ -27,18 +29,22 @@ export function Card({ title, subtitle, action, children, className = '', varian
 export function StatTile({ label, value, hint, delta, icon: Icon }) {
   return (
     <div className="metric-tile">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between gap-2">
         <p className="label">{label}</p>
-        {Icon && <Icon size={18} className="text-primary" />}
+        {Icon && (
+          <span className="icon-chip" aria-hidden="true">
+            <Icon size={16} strokeWidth={1.8} />
+          </span>
+        )}
       </div>
-      <p className="text-3xl font-bold tracking-tight text-ink">{value}</p>
+      <p className="tnum mt-2 text-[26px] font-bold tracking-tight text-ink">{value}</p>
       {delta && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--delta-up)' }}>
-          <CheckCircle2 size={14} />
+        <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--delta-up)' }}>
+          <CheckCircle2 size={13} />
           {delta}
         </p>
       )}
-      {hint && <p className="mt-2 text-sm text-ink-muted">{hint}</p>}
+      {hint && <p className="mt-1.5 text-xs text-ink-muted">{hint}</p>}
     </div>
   );
 }
@@ -49,7 +55,7 @@ export function Badge({ band, children, variant = 'neutral' }) {
     const Icon = STATUS_ICON[meta.role] ?? CircleDot;
     return (
       <span className={`pill pill-${meta.role}`} title={`${meta.label} priority`}>
-        <Icon size={14} />
+        <Icon size={12} />
         {children ?? meta.label}
       </span>
     );
@@ -75,25 +81,26 @@ export function Button({ children, variant = 'primary', className = '', ...props
 
 export function Loading({ label = 'Loading' }) {
   return (
-    <div className="flex items-center gap-3 py-12 text-sm font-medium text-ink-muted" role="status">
-      <Loader2 size={20} className="animate-spin text-primary" />
+    <div className="flex items-center gap-2.5 py-10 text-[13px] font-medium text-ink-muted" role="status">
+      <Loader2 size={18} className="animate-spin text-primary" />
       {label}…
     </div>
   );
 }
 
-export function Empty({ title, description, action }) {
+export function Empty({ title, description, action, children }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      {title && <h3 className="text-lg font-semibold text-ink">{title}</h3>}
-      {description && <p className="mt-1 text-sm text-ink-muted max-w-sm">{description}</p>}
-      {action && <div className="mt-6">{action}</div>}
+    <div className="flex flex-col items-center justify-center py-10 text-center">
+      {title && <h3 className="text-[15px] font-semibold text-ink">{title}</h3>}
+      {description && <p className="mt-1 text-[13px] text-ink-muted max-w-sm">{description}</p>}
+      {children && <div className="mt-1 text-[13px] text-ink-muted max-w-sm">{children}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('statskill.theme') ?? 'system');
+  const [theme, setTheme] = useState(() => localStorage.getItem('statskill.theme') ?? 'light');
 
   useEffect(() => {
     const root = document.documentElement;
@@ -113,7 +120,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
     >
-      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
 }
@@ -123,14 +130,15 @@ export function ErrorNote({ error, onRetry, className = '' }) {
   if (!error) return null;
   return (
     <div
-      className={`flex items-start gap-2 rounded-md border border-hairline bg-surface-2 p-3 text-sm text-ink ${className}`}
+      className={`flex items-start gap-2 rounded-button border bg-surface p-3 text-[13px] text-ink ${className}`}
+      style={{ borderColor: 'rgba(214, 69, 69, 0.25)', background: 'rgba(214, 69, 69, 0.05)' }}
       role="alert"
     >
-      <AlertCircle size={16} aria-hidden="true" style={{ color: 'var(--status-critical)' }} />
+      <AlertCircle size={15} aria-hidden="true" className="mt-0.5 shrink-0" style={{ color: 'var(--status-critical)' }} />
       <div>
         <p>{error.message ?? String(error)}</p>
         {onRetry && (
-          <button type="button" className="mt-2 text-xs underline" onClick={onRetry}>
+          <button type="button" className="mt-1.5 text-xs font-semibold text-primary hover:underline" onClick={onRetry}>
             Try again
           </button>
         )}

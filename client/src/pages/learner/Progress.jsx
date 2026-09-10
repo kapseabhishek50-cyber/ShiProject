@@ -30,10 +30,10 @@ export default function Progress() {
   const totalVerifiedLevels = passedQuizzes.length;
 
   return (
-    <div className="space-y-8 max-w-6xl">
+    <div className="space-y-5 max-w-6xl">
       {/* ── Header ─────────────────────────────────────────────────── */}
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+        <h1 className="text-h1 font-bold tracking-tight text-ink">
           Competency Progress & Analytics
         </h1>
         <p className="mt-1 text-sm text-ink-2">
@@ -42,7 +42,7 @@ export default function Progress() {
       </div>
 
       {/* ── Stat Tiles ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatTile
           label="Skills Tracked"
           value={held.length}
@@ -70,14 +70,14 @@ export default function Progress() {
       </div>
 
       {/* ── Competencies Grid ─────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="lg:col-span-7 space-y-3.5">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-ink">Verified Competency Records</h2>
+            <h2 className="text-h2 font-bold text-ink">Verified Competency Records</h2>
             <span className="text-xs text-ink-muted">{held.length} competencies registered</span>
           </div>
 
-          <div className="card p-6 space-y-5">
+          <div className="card !p-5 space-y-4">
             {held.map((entry) => {
               const req = gaps.find((g) => g.competencyId === String(entry.competency?._id));
               return (
@@ -107,17 +107,17 @@ export default function Progress() {
         </div>
 
         {/* Recent Improvements Timeline */}
-        <div className="lg:col-span-5 space-y-6">
-          <h2 className="text-xl font-bold text-ink">Recent Improvements</h2>
+        <div className="lg:col-span-5 space-y-3.5">
+          <h2 className="text-h2 font-bold text-ink">Recent Improvements</h2>
 
-          <div className="card p-6 space-y-4">
+          <div className="card !p-5 space-y-3.5">
             {passedQuizzes.slice(0, 5).map((q) => (
-              <div key={q._id} className="flex items-start gap-3 border-b border-hairline/60 pb-3 last:border-0 last:pb-0">
-                <div className="p-2 rounded-lg bg-status-good/10 text-status-good mt-0.5">
+              <div key={q._id} className="flex items-start gap-3 border-b border-hairline pb-3 last:border-0 last:pb-0">
+                <div className="icon-chip mt-0.5">
                   <ArrowUpRight size={16} />
                 </div>
                 <div className="space-y-0.5 flex-1">
-                  <p className="text-sm font-bold text-ink">{q.competency?.name || 'Skill Assessment'}</p>
+                  <p className="text-[13px] font-bold text-ink">{q.competency?.name || 'Skill Assessment'}</p>
                   <p className="text-xs text-ink-2">
                     Advanced to Level {q.targetLevel} · Score: {q.scorePct}%
                   </p>

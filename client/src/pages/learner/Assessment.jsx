@@ -102,7 +102,7 @@ export default function Assessment() {
       <ErrorNote error={items.error ?? mine.error ?? profile.error ?? submit.error} onRetry={items.error ? items.refetch : mine.error ? mine.refetch : profile.refetch} />
 
       <div
-        className="sticky top-0 z-10 flex items-center justify-between gap-4 rounded-card border border-hairline bg-surface px-4 py-3"
+        className="sticky top-[68px] z-10 flex items-center justify-between gap-4 rounded-card border border-hairline bg-surface px-4 py-3 shadow-card"
         role="status"
       >
         <p className="text-xs text-ink-2">
